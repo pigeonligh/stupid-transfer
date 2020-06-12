@@ -1,10 +1,14 @@
 #include "server.h"
+#include "connection.h"
+#include "keepalive.h"
+#include "event.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <sys/epoll.h>
 
 int32_t listen_fd = -1;
 
@@ -31,15 +35,28 @@ int32_t init_fd(int32_t port) {
         exit(EXIT_FAILURE);
     }
 
+    add_event(fd);
+
     return fd;
 }
 
 void init(int32_t port) {
     listen_fd = init_fd(port);
     printf("server runs in *:%d\n", port);
+
+    init_connections();
+    keepalive_start();
 }
 
 void run_once() {
+    epoll_event event;
+    read_event(&event);
+    printf("get event\n");
+    if (event.data.fd == listen_fd) {
+        // TODO: new connection
+    } else {
+        // TODO: listen from connected client
+    }
 }
 
 void server_start(int32_t port) {
@@ -47,4 +64,11 @@ void server_start(int32_t port) {
     while (true) {
         run_once();
     } 
+}
+
+void server_close() {
+    close(listen_fd);
+    keepalive_close();
+    close_event();
+    close_all_connections();
 }

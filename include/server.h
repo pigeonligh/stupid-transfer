@@ -7,5 +7,6 @@
 #define MAX_CONNECTIONS 128
 
 void server_start(int32_t);
+void server_close();
 
 #endif /* _SERVER_H_ */
