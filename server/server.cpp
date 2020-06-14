@@ -109,7 +109,7 @@ void process_packet(const connection_info* ci) {
         len += recv(client_fd, &pack + len, PACKET_HEADER_SIZE - len, 0);
         if (len < 0) {
             perror("receive from client");
-            // TODO: close user
+            // TODO: close connection
             return;
         }
     }
@@ -118,7 +118,7 @@ void process_packet(const connection_info* ci) {
         len += recv(client_fd, &pack + len, PACKET_HEADER_SIZE - len, 0);
         if (len < 0) {
             perror("receive from client");
-            // TODO: close user
+            // TODO: close connection
             return;
         }
     }

@@ -3,15 +3,14 @@
 #include <unistd.h>
 
 void init_connections() {
-    // TODO
+    // TODO: init connections
 }
 
 connection_info* find_connection(int32_t fd) {
-    // TODO
+    // TODO: find connection by fd
     return nullptr;
 }
 
 void close_all_connections() {
-    // TODO
-    // for each connection to call close_connection()
+    // TODO: for each connection to call close_connection()
 }

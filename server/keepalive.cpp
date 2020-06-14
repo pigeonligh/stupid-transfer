@@ -11,8 +11,7 @@ pthread_t thread;
 
 void send_ka(connection_info* ci) {
     if (time(nullptr) - ci->secs > DEAD_TIME) {
-        // TODO
-        // close connection
+        // TODO: close connection
     } else {
         ci->count--;
         if (ci->count <= 0) {
@@ -32,8 +31,7 @@ void* keepalive(void *obj) {
         printf("keep alive\n");
         sleep(1);
         set_lock();
-        // TODO
-        // for each connection to call send_ka()
+        // TODO: for each connection to call send_ka()
         unset_lock();
     }
     return nullptr;
