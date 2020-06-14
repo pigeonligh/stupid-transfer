@@ -1,6 +1,7 @@
 #include "keepalive.h"
 #include "connection.h"
 #include "packet.h"
+#include "lock.h"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -30,8 +31,10 @@ void* keepalive(void *obj) {
     while (true) {
         printf("keep alive\n");
         sleep(1);
+        set_lock();
         // TODO
         // for each connection to call send_ka()
+        unset_lock();
     }
     return nullptr;
 }

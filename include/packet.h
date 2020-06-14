@@ -34,8 +34,6 @@ struct packet {
     uint8_t type;
 
     uint8_t data[MAX_PACKET_SIZE];
-
-    uint32_t size();
 };
 
 struct packet_data {

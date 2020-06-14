@@ -1,6 +1,8 @@
 #include "server.h"
+
 #include "connection.h"
 #include "keepalive.h"
+#include "packet.h"
 #include "event.h"
 
 #include <stdio.h>
@@ -10,10 +12,13 @@
 #include <netinet/in.h>
 #include <sys/epoll.h>
 
+void new_connection(const epoll_event &event);
+void listen_from_connection(const epoll_event &event);
+
 int32_t listen_fd = -1;
 
 int32_t init_fd(int32_t port) {
-    int32_t fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    int32_t fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP);
     if (fd == -1) {
         perror("create socket");
         exit(EXIT_FAILURE);
@@ -41,6 +46,8 @@ int32_t init_fd(int32_t port) {
 }
 
 void init(int32_t port) {
+    init_event();
+
     listen_fd = init_fd(port);
     printf("server runs in *:%d\n", port);
 
@@ -53,9 +60,9 @@ void run_once() {
     read_event(&event);
     printf("get event\n");
     if (event.data.fd == listen_fd) {
-        // TODO: new connection
+        new_connection(event);
     } else {
-        // TODO: listen from connected client
+        listen_from_connection(event);
     }
 }
 
@@ -71,4 +78,68 @@ void server_close() {
     keepalive_close();
     close_event();
     close_all_connections();
+}
+
+void new_connection(const epoll_event &event) {
+    int32_t fd = event.data.fd;
+    printf("create connection from %d\n", fd);
+
+    sockaddr_in client_addr;
+    socklen_t addr_len = sizeof(client_addr);
+    int32_t connect_fd = accept(fd, (sockaddr*) &client_addr, &addr_len);
+
+    if (connect_fd == -1) {
+        printf("create connection failed.");
+        return;
+    }
+
+    set_lock();
+
+    // TODO: create connection (by connect_fd)
+
+    unset_lock();
+}
+
+void process_packet(const connection_info* ci) {
+    int32_t client_fd = ci->fd;
+
+    packet pack;
+    uint32_t len = 0;
+    while (len < PACKET_HEADER_SIZE) {
+        len += recv(client_fd, &pack + len, PACKET_HEADER_SIZE - len, 0);
+        if (len < 0) {
+            perror("receive from client");
+            // TODO: close user
+            return;
+        }
+    }
+
+    while (len < pack.length) {
+        len += recv(client_fd, &pack + len, PACKET_HEADER_SIZE - len, 0);
+        if (len < 0) {
+            perror("receive from client");
+            // TODO: close user
+            return;
+        }
+    }
+
+    if (pack.type == TYPE_CONNECT) {
+        // TODO: confirm connection
+    } else if (pack.type == TYPE_REQUEST) {
+        // TODO: process request from client
+    } else if (pack.type == TYPE_SEND) {
+        // TODO: process send request from client
+    } else if (pack.type == KEEPALIVE) {
+        // TODO: receive keepalive from client
+    } else {
+        printf("unknown type packet");
+    }
+}
+
+void listen_from_connection(const epoll_event &event) {
+    if (event.events & EPOLLIN) {
+        int32_t fd = event.data.fd;
+        printf("listen from %d\n", fd);
+        // TODO: find connection by fd and call process_packet()
+    }
 }
