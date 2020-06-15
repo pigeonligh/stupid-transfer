@@ -18,7 +18,7 @@ connection_info *first_connection();
 
 connection_info *next_connection();
 
-void new_connection(int fd);
+connection_info *new_connection(int fd);
 
 void close_connection(int32_t fd);
 
