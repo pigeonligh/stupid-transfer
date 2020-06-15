@@ -4,7 +4,8 @@
 #include <stdint.h>
 #include <arpa/inet.h>
 
-struct connection_info {
+struct connection_info
+{
     int32_t fd;
 
     uint32_t secs;
@@ -13,12 +14,15 @@ struct connection_info {
 
 void init_connections();
 
-// TODO: first_connection
-// TODO: next_connection
-// TODO: new_connection
-// TODO: close_connection
+connection_info *first_connection();
 
-connection_info* find_connection(int32_t fd);
+connection_info *next_connection();
+
+void new_connection(int fd);
+
+void close_connection(int32_t fd);
+
+connection_info *find_connection(int32_t fd);
 
 void close_all_connections();
 
