@@ -51,6 +51,7 @@ bool close_connection(int fd)
     for (vci::iterator iter = connections.begin(); iter != connections.end(); ++iter)
         if ((*iter)->fd == fd)
         {
+            delete (*iter);
             iter = connections.erase(iter);
             close(fd);
             return true;
@@ -63,6 +64,7 @@ void close_all_connections()
 {
     for (vci::iterator iter = connections.begin(); iter != connections.end(); ++iter)
     {
+        delete (*iter);
         close((*iter)->fd);
     }
     connections.clear();
