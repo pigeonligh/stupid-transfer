@@ -37,13 +37,13 @@ connection_info *next_connection()
     return *g_it;
 }
 
-bool new_connection(int fd)
+connection_info *new_connection(int fd)
 {
     if (find_connection(fd) == nullptr)
-        return false;
+        return nullptr;
 
     connections.push_back(new connection_info(fd, time(nullptr), 0));
-    return true;
+    return *connections.back();
 }
 
 bool close_connection(int fd)
