@@ -1,9 +1,10 @@
 #include "server.h"
 
-#include "connection.h"
+#include "connection_info.h"
 #include "keepalive.h"
 #include "packet.h"
 #include "event.h"
+#include "lock.h"
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -1,5 +1,5 @@
 #include "keepalive.h"
-#include "connection.h"
+#include "connection_info.h"
 #include "packet.h"
 #include "lock.h"
 
