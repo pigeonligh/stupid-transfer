@@ -6,12 +6,13 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <arpa/inet.h>
 
 pthread_t thread;
 
 void send_ka(connection_info* ci) {
     if (time(nullptr) - ci->secs > DEAD_TIME) {
-        // TODO: close connection
+        close_connection(ci->fd);
     } else {
         ci->count--;
         if (ci->count <= 0) {
@@ -31,7 +32,9 @@ void* keepalive(void *obj) {
         printf("keep alive\n");
         sleep(1);
         set_lock();
-        // TODO: for each connection to call send_ka()
+        for (connection_info *ci = first_connection(); ci != nullptr; ci = next_connection()) {
+            send_ka(ci);
+        }
         unset_lock();
     }
     return nullptr;

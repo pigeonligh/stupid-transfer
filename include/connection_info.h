@@ -2,10 +2,8 @@
 #define _CONNECTION_INFO_H_
 
 #include <stdint.h>
-#include <arpa/inet.h>
 
-struct connection_info
-{
+struct connection_info {
     int32_t fd;
 
     uint32_t secs;
