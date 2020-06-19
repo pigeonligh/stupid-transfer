@@ -12,9 +12,6 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-#define STATUS_READY 0
-#define STATUS_TRANSFERING 1
-
 int32_t sock_fd = -1;
 
 pthread_t client_thread;
@@ -72,6 +69,7 @@ bool client_start(const char* ipaddr, int32_t port) {
     }
 
     pthread_create(&client_thread, nullptr, client_receiver, nullptr);
+    now_status = STATUS_READY;
     return true;
 }
 
@@ -98,7 +96,7 @@ bool process_packet() {
         printf("receive data from server\n");
     } else if (pack.type == KEEPALIVE) {
         // printf("receive keepalive from server\n");
-        send(sock_fd, &pack, pack.length, 0);
+        send_packet(&pack);
     } else {
         printf("unknown type packet\n");
     }
@@ -106,6 +104,15 @@ bool process_packet() {
     return true;
 }
 
+void set_status(int status) {
+    now_status = status;
+}
+
 bool is_waiting() {
     return now_status != STATUS_READY;
+}
+
+void send_packet(packet *pack) {
+    int length = pack->length;
+    send(sock_fd, pack, length, 0);
 }

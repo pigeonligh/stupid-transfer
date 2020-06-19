@@ -75,10 +75,10 @@ void server_start(int32_t port) {
 }
 
 void server_stop() {
-    close(listen_fd);
     keepalive_close();
     close_event();
     close_all_connections();
+    close(listen_fd);
 }
 
 void new_connection(const epoll_event &event) {
@@ -117,6 +117,9 @@ void process_packet(connection_info* ci) {
     } else if (pack.type == TYPE_REQUEST) {
         // TODO: receive request from client
         printf("receive request from client %d\n", client_fd);
+        int len = pack.length - PACKET_HEADER_SIZE;
+        pack.data[len] = 0;
+        printf("%s\n", (char*) pack.data);
     } else if (pack.type == TYPE_SEND) {
         // TODO: receive data from client
         printf("receive data from client %d\n", client_fd);
