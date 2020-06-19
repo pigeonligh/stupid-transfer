@@ -129,9 +129,12 @@ void process_packet(connection_info* ci) {
         // this is useless
     } else if (pack.type == TYPE_REQUEST) {
         // TODO: process request from client
+        printf("receive request from client %d\n", client_fd);
     } else if (pack.type == TYPE_SEND) {
         // TODO: process send request from client
+        printf("receive data from client %d\n", client_fd);
     } else if (pack.type == KEEPALIVE) {
+        printf("keepalive for client %d\n", client_fd);
         ci->secs = time(nullptr);
     } else {
         printf("unknown type packet");
