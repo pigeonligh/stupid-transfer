@@ -106,32 +106,19 @@ void process_packet(connection_info* ci) {
     int32_t client_fd = ci->fd;
 
     packet pack;
-    uint32_t len = 0;
-    while (len < PACKET_HEADER_SIZE) {
-        len += recv(client_fd, &pack + len, PACKET_HEADER_SIZE - len, 0);
-        if (len < 0) {
-            perror("receive from client");
-            close_connection(client_fd);
-            return;
-        }
-    }
-
-    while (len < pack.length) {
-        len += recv(client_fd, &pack + len, PACKET_HEADER_SIZE - len, 0);
-        if (len < 0) {
-            perror("receive from client");
-            close_connection(client_fd);
-            return;
-        }
+    if (receive_packet(client_fd, &pack) == false) {
+        perror("receive from client");
+        close_connection(client_fd);
+        return;
     }
 
     if (pack.type == TYPE_CONNECT) {
         // this is useless
     } else if (pack.type == TYPE_REQUEST) {
-        // TODO: process request from client
+        // TODO: receive request from client
         printf("receive request from client %d\n", client_fd);
     } else if (pack.type == TYPE_SEND) {
-        // TODO: process send request from client
+        // TODO: receive data from client
         printf("receive data from client %d\n", client_fd);
     } else if (pack.type == KEEPALIVE) {
         printf("keepalive for client %d\n", client_fd);

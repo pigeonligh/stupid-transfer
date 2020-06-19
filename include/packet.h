@@ -49,4 +49,6 @@ struct send_data {
     uint8_t hash[HASH_SIZE];
 };
 
+bool receive_packet(int32_t fd, packet *pack);
+
 #endif /* _PACKET_H */
