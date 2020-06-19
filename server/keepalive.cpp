@@ -12,6 +12,7 @@ pthread_t thread;
 
 void send_ka(connection_info* ci) {
     if (time(nullptr) - ci->secs > DEAD_TIME) {
+        printf("client %d disconnected\n", ci->fd);
         close_connection(ci->fd);
     } else {
         ci->count--;
@@ -29,7 +30,7 @@ void send_ka(connection_info* ci) {
 
 void* keepalive(void *obj) {
     while (true) {
-        printf("keep alive\n");
+        // printf("keep alive\n");
         sleep(1);
         set_lock();
         for (connection_info *ci = first_connection(); ci != nullptr; ci = next_connection()) {

@@ -107,7 +107,7 @@ void process_packet(connection_info* ci) {
 
     packet pack;
     if (receive_packet(client_fd, &pack) == false) {
-        perror("receive from client");
+        printf("client %d disconnected\n", ci->fd);
         close_connection(client_fd);
         return;
     }
@@ -124,7 +124,7 @@ void process_packet(connection_info* ci) {
         printf("keepalive for client %d\n", client_fd);
         ci->secs = time(nullptr);
     } else {
-        printf("unknown type packet");
+        printf("unknown type packet\n");
     }
 }
 

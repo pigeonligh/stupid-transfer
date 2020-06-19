@@ -22,10 +22,10 @@ pthread_t client_thread;
 uint8_t now_status;
 int32_t file_fd;
 
-void process_packet();
+bool process_packet();
 
 int32_t connect_server(const char* ipaddr, int32_t port) {
-    int32_t fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP);
+    int32_t fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (fd == -1) {
         perror("create socket");
         return -1;
@@ -52,7 +52,10 @@ void* client_receiver(void *obj) {
         read_event(&event);
         if (event.data.fd == sock_fd) {
             set_lock();
-            process_packet();
+            if (process_packet() == false) {
+                unset_lock();
+                break;
+            }
             unset_lock();
         }
     }
@@ -78,11 +81,11 @@ void client_stop() {
     close(sock_fd);
 }
 
-void process_packet() {
+bool process_packet() {
     packet pack;
     if (receive_packet(sock_fd, &pack) == false) {
-        perror("receive from server");
-        return;
+        printf("pipe broken\n");
+        return false;
     }
 
     if (pack.type == TYPE_CONNECTED) {
@@ -94,8 +97,15 @@ void process_packet() {
         // TODO: receive data from server
         printf("receive data from server\n");
     } else if (pack.type == KEEPALIVE) {
+        // printf("receive keepalive from server\n");
         send(sock_fd, &pack, pack.length, 0);
     } else {
-        printf("unknown type packet");
+        printf("unknown type packet\n");
     }
+
+    return true;
+}
+
+bool is_waiting() {
+    return now_status != STATUS_READY;
 }

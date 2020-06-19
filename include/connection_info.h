@@ -6,8 +6,8 @@
 struct connection_info {
     int32_t fd;
 
-    uint32_t secs;
-    uint32_t count;
+    int32_t secs;
+    int32_t count;
 
     struct connection_core* core;
 };
