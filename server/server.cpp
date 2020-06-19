@@ -96,12 +96,13 @@ void new_connection(const epoll_event &event) {
 
     set_lock();
 
-    // TODO: create connection (by connect_fd)
+    connection_info *ci = new_connection(connect_fd);
+    add_event(ci->fd);
 
     unset_lock();
 }
 
-void process_packet(const connection_info* ci) {
+void process_packet(connection_info* ci) {
     int32_t client_fd = ci->fd;
 
     packet pack;
@@ -110,7 +111,7 @@ void process_packet(const connection_info* ci) {
         len += recv(client_fd, &pack + len, PACKET_HEADER_SIZE - len, 0);
         if (len < 0) {
             perror("receive from client");
-            // TODO: close connection
+            close_connection(client_fd);
             return;
         }
     }
@@ -119,19 +120,19 @@ void process_packet(const connection_info* ci) {
         len += recv(client_fd, &pack + len, PACKET_HEADER_SIZE - len, 0);
         if (len < 0) {
             perror("receive from client");
-            // TODO: close connection
+            close_connection(client_fd);
             return;
         }
     }
 
     if (pack.type == TYPE_CONNECT) {
-        // TODO: confirm connection
+        // this is useless
     } else if (pack.type == TYPE_REQUEST) {
         // TODO: process request from client
     } else if (pack.type == TYPE_SEND) {
         // TODO: process send request from client
     } else if (pack.type == KEEPALIVE) {
-        // TODO: receive keepalive from client
+        ci->secs = time(nullptr);
     } else {
         printf("unknown type packet");
     }
@@ -141,6 +142,9 @@ void listen_from_connection(const epoll_event &event) {
     if (event.events & EPOLLIN) {
         int32_t fd = event.data.fd;
         printf("listen from %d\n", fd);
-        // TODO: find connection by fd and call process_packet()
+        connection_info *ci = find_connection(fd);
+        if (ci != nullptr) {
+            process_packet(ci);
+        }
     }
 }
