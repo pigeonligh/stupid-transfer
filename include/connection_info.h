@@ -8,6 +8,8 @@ struct connection_info {
 
     uint32_t secs;
     uint32_t count;
+
+    struct connection_core* core;
 };
 
 void init_connections();

@@ -21,6 +21,7 @@ struct connection_core {
 
     bool setWorkingStatus(uint8_t sign, const std::string &file);
     uint32_t getData(bool checked, uint8_t *data);
+    bool setData(uint8_t *data);
 
 private:
     int32_t fd;    

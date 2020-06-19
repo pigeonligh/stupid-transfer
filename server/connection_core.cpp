@@ -60,3 +60,8 @@ bool connection_core::prepareData() {
     // TODO: load new data into buff
     return false;
 }
+
+bool connection_core::setData(uint8_t *data) {
+    // TODO: receive data
+    return false;
+}

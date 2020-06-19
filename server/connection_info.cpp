@@ -1,4 +1,5 @@
 #include "connection_info.h"
+#include "connection_core.h"
 
 #include <unistd.h>
 #include <time.h>
@@ -42,16 +43,22 @@ connection_info* new_connection(int fd) {
     ci->fd = fd;
     ci->secs = time(nullptr);
     ci->count = 0;
+    ci->core = new connection_core();
     connections.push_back(ci);
     return ci;
+}
+
+void close_ci(connection_info* ci) {
+    close(ci->fd);
+    delete ci->core;
+    delete ci;
 }
 
 bool close_connection(int fd) {
     for (vci::iterator iter = connections.begin(); iter != connections.end(); ++iter) {
         if ((*iter)->fd == fd) {
-            delete (*iter);
+            close_ci(*iter);
             iter = connections.erase(iter);
-            close(fd);
             return true;
         }
     }
@@ -63,8 +70,7 @@ void close_all_connections()
 {
     for (vci::iterator iter = connections.begin(); iter != connections.end(); ++iter)
     {
-        close((*iter)->fd);
-        delete (*iter);
+        close_ci(*iter);
     }
     connections.clear();
 }
