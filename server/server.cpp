@@ -74,7 +74,7 @@ void server_start(int32_t port) {
     } 
 }
 
-void server_close() {
+void server_stop() {
     close(listen_fd);
     keepalive_close();
     close_event();

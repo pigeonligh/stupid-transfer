@@ -5,7 +5,7 @@
 #include "server.h"
 
 void handler(int sign) {
-    server_close();
+    server_stop();
     printf("Close server\n");
     exit(0);
 }
