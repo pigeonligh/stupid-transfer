@@ -1,7 +1,7 @@
 #include "connection_core.h"
 #include "packet.h"
 
-#include "string.h"
+#include <string.h>
 
 std::string root;
 
