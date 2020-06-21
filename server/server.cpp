@@ -1,6 +1,7 @@
 #include "server.h"
 
 #include "connection_info.h"
+#include "connection_core.h"
 #include "keepalive.h"
 #include "packet.h"
 #include "event.h"
@@ -67,8 +68,9 @@ void run_once() {
     }
 }
 
-void server_start(int32_t port) {
+void server_start(const char *dir, int32_t port) {
     init(port);
+    set_root(dir);
     while (true) {
         run_once();
     } 

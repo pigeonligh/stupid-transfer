@@ -34,4 +34,6 @@ private:
     bool prepareData();
 };
 
+void set_root(const std::string &dir);
+
 #endif /* _CONNECTION_CORE_H_ */

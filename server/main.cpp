@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <signal.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "server.h"
 
@@ -10,8 +11,35 @@ void handler(int sign) {
     exit(0);
 }
 
-int main() {
-    signal(SIGINT, handler);
+void print_usage() {
+    puts("Usage:");
+    puts("    ./server CONFIG_FILE");
+    puts("or  ./server --test");
+    fflush(stdout);
+}
 
-    server_start(DEFAULT_SERVER_PORT);
+void load_config(const char *config, char *dir, int *port) {
+    // TODO: load config from file
+    memcpy(dir, "/", 1);
+    *port = DEFAULT_SERVER_PORT;
+}
+
+int main(int argc, char **argv) {
+    if (argc != 2) {
+        print_usage();
+        return 0;
+    }
+
+    if (strcmp(argv[1], "--test") == 0) {
+        // test mode
+    } else {
+        signal(SIGINT, handler);
+
+        char dir[256];
+        int port;
+
+        load_config(argv[1], dir, &port);
+
+        server_start(dir, port);
+    }
 }

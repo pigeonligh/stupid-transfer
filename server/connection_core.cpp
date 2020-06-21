@@ -3,6 +3,12 @@
 
 #include "string.h"
 
+std::string root;
+
+void set_root(const std::string &dir) {
+    root = dir;
+}
+
 connection_core::connection_core() {
     fd = -1;
     buff = new uint8_t[MAX_PACKET_SIZE];
