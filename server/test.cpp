@@ -8,6 +8,8 @@ void server_test() {
     // this is test
     printf("this is test.\n");
 
+    set_root("./data/");
+
     connection_core *core = new connection_core();
 
     char buff[4096];

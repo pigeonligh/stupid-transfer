@@ -20,7 +20,7 @@ void print_usage() {
 
 void load_config(const char *config, char *dir, int *port) {
     // TODO: load config from file
-    memcpy(dir, "/", 1);
+    memcpy(dir, "./data/", 1);
     *port = DEFAULT_SERVER_PORT;
 }
 
@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
     }
 
     if (strcmp(argv[1], "--test") == 0) {
-        // test mode
+        server_test();
     } else {
         signal(SIGINT, handler);
 
