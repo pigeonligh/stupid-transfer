@@ -17,6 +17,12 @@ void set_root(const std::string &dir) {
 bool get_path(std::string dir, std::vector<std::string> &path) {
     if (dir[dir.size() - 1] != '/')
         dir += std::string("/");
+    if (dir.size() == 0)
+        return false;
+    if (dir[0] == '/') {
+        dir = dir.substr(1, dir.size() - 1);
+        path.clear();
+    }
     if (dir.size() == 0 || dir[0] == '/')
         return false;
     std::vector<std::string> _path(path);
@@ -103,10 +109,7 @@ bool connection_core::changeDirectory(const std::string &dir) {
 
 bool connection_core::createDirectory(const std::string &dir) {
     std::string res = root;
-    for (int i = 0; i < path.size(); ++ i)
-        res += (path[i] + std::string("/"));
-    std::vector<std::string> _path;
-    _path.clear();
+    std::vector<std::string> _path(path);
     bool result = get_path(dir, _path);
     if (!result)
         return false;
@@ -125,30 +128,37 @@ bool connection_core::createDirectory(const std::string &dir) {
 }
 
 bool connection_core::removeDirectory(const std::string &dir) {
-    std::string _path = root;
-    for (int i = 0; i < path.size(); ++ i)
-        _path += (path[i] + std::string("/"));
-    _path += (dir + std::string("/"));
-    if (access(_path.data(), 0) == -1)
+    if (dir.size() == 0)
         return false;
-    return remove_dir(_path);
+    std::string res = root;
+    std::vector<std::string> _path(path);
+    bool result = get_path(dir, _path);
+    if (!result)
+        return false;
+    for (int i = 0; i < _path.size(); ++ i)
+        res += (_path[i] + std::string("/"));
+    if (access(res.data(), 0) == -1)
+        return false;
+    return remove_dir(res);
 }
 
 bool connection_core::removeFile(const std::string &file) {
-    std::string _path = root;
-    for (int i = 0; i < path.size(); ++i)
-        _path += (path[i] + std::string("/"));
-    _path += file;
-    struct stat dir_stat;
-    if (access(_path.data(), 0) == -1)
+    if (file.size() == 0)
         return false;
-    if (stat(_path.data(), &dir_stat) < 0)
+    std::string res = root;
+    std::vector<std::string> _path(path);
+    bool result = get_path(file, _path);
+    if (!result)
         return false;
-    if (S_ISREG(dir_stat.st_mode)) {
-        remove(_path.data());
-        return true;
+    for (int i = 0; i < _path.size(); ++ i) {
+        res += _path[i];
+        if (i != _path.size() - 1)
+            res += std::string("/");
     }
-    return false;
+    if (access(res.data(), 0) == -1)
+        return false;
+    remove(res.data());
+    return true;
 }
 
 uint32_t connection_core::getCurrentDirectory(uint8_t *data) {
