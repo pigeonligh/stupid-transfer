@@ -6,6 +6,9 @@
 #include <string>
 
 #define CONNECTION_READY 0
+#define CONNECTION_LISTING 1
+#define CONNECTION_UPLOADING 2
+#define CONNECTION_DOWNLOADING 3
 
 struct connection_core {
     connection_core();
@@ -20,11 +23,15 @@ struct connection_core {
     uint32_t getCurrentDirectory(uint8_t *data);
 
     bool setWorkingStatus(uint8_t sign, const std::string &file);
+    void unsetWorkingStatus();
+
     uint32_t getData(bool checked, uint8_t *data);
     bool setData(uint8_t *data);
 
 private:
-    int32_t fd;    
+    FILE *fd;
+    DIR *dir;
+
     uint8_t status;
     uint8_t *buff;
     uint32_t length;

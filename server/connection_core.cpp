@@ -169,9 +169,42 @@ uint32_t connection_core::getCurrentDirectory(uint8_t *data) {
     return result.length();
 }
 
+void connection_core::unsetWorkingStatus() {
+    if (fd != nullptr) {
+        fclose(fd);
+        fd = 0;
+    }
+    if (dir != nullptr) {
+        closedir(dir);
+        dir = nullptr;
+    }
+    status = CONNECTION_READY;
+}
+
 bool connection_core::setWorkingStatus(uint8_t sign, const std::string &file) {
-    // TODO: prepare for List/Upload/Download
-    return false;
+    unsetWorkingStatus();
+    if (sign == REQUEST_LS) {
+        dir = opendir(file.c_str());
+        if (dir == nullptr) {
+            return false;
+        }
+        status = CONNECTION_LISTING;
+    } else if (sign == REQUEST_DOWNLOAD) {
+        fd = fopen(file.c_str(), "rb");
+        if (fd == nullptr) {
+            return false;
+        }
+        status = CONNECTION_DOWNLOADING;
+    } else if (sign == REQUEST_UPLOAD) {
+        fd = fopen(file.c_str(), "wb");
+        if (fd == nullptr) {
+            return false;
+        }
+        status = CONNECTION_UPLOADING;
+    } else {
+        return false;
+    }
+    return true;
 }
 
 uint32_t connection_core::getData(bool checked, uint8_t *data) {
@@ -185,11 +218,45 @@ uint32_t connection_core::getData(bool checked, uint8_t *data) {
 }
 
 bool connection_core::prepareData() {
-    // TODO: load new data into buff
-    return false;
+    if (status == CONNECTION_LISTING) {
+        if (dir == nullptr) {
+            return false;
+        }
+        // TODO: 
+        // 1. list file/dir from `dir`
+        // 2. write into a send_data object(one filename per 256 positions, 7 filenames per packet)
+        // 3. list `.` and `..`(if can) first
+        // 4. hash it
+        // 5. copy data into buff
+        // 6. set length = MAX_PACKET_SIZE
+    } else if (status == CONNECTION_DOWNLOADING) {
+        if (fd == nullptr) {
+            return false;
+        }
+        // TODO: 
+        // 1. load file from fd
+        // 2. write into a send_data object
+        // 3. hash it
+        // 4. copy data into buff
+        // 5. set length = MAX_PACKET_SIZE
+    } else {
+        return false;
+    }
+    return true;
 }
 
 bool connection_core::setData(uint8_t *data) {
-    // TODO: receive data
-    return false;
+    if (status == CONNECTION_UPLOADING) {
+        if (fd == nullptr) {
+            return false;
+        }
+        // TODO: 
+        // 1. data -> (send_data *)
+        // 1. check hash
+        // 2. write data into fd
+        // notice: check length by char '\0'
+    } else {
+        return false;
+    }
+    return true;
 }
