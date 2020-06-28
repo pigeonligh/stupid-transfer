@@ -9,6 +9,6 @@
 void server_start(const char *dir, int32_t);
 void server_stop();
 
-void server_test();
+void server_test(const char *dir, int32_t);
 
 #endif /* _SERVER_H_ */

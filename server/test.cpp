@@ -6,12 +6,13 @@
 #include <iostream>
 #include <string.h>
 
-void server_test()
+void server_test(const char *dir, int32_t port)
 {
     // this is test
     printf("this is test.\n");
+    printf("run in %s\n", dir);
 
-    set_root("/mnt/c/Users/palad/Desktop/workspace/git/FileTransfer/bin/data/");
+    set_root(dir);
 
     connection_core *core = new connection_core();
 
