@@ -1,6 +1,7 @@
 #include "server.h"
 
 #include "connection_core.h"
+#include "md5/md5.h"
 
 #include <stdio.h>
 #include <iostream>
@@ -11,6 +12,8 @@ void server_test(const char *dir, int32_t port)
     // this is test
     printf("this is test.\n");
     printf("run in %s\n", dir);
+
+    printf("md5sum: %s\n",  md5("Hello world").c_str());
 
     set_root(dir);
 
