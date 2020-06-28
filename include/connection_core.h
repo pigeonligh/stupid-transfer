@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <vector>
 #include <string>
+#include <dirent.h>
 
 #define CONNECTION_READY 0
 #define CONNECTION_LISTING 1

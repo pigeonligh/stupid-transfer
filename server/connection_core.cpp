@@ -26,8 +26,8 @@ bool get_path(std::string dir, std::vector<std::string> &path) {
     if (dir.size() == 0 || dir[0] == '/')
         return false;
     std::vector<std::string> _path(path);
-    int last = 0;
-    for (int i = 0; i < dir.size(); ++ i) {
+    uint32_t last = 0u;
+    for (uint32_t i = 0u; i < dir.size(); ++ i) {
         if (dir[i] == '/') {
             if (last >= i)
                 return false;
@@ -81,7 +81,7 @@ bool remove_dir(const std::string &dir) {
 }
 
 connection_core::connection_core() {
-    fd = -1;
+    fd = nullptr;
     buff = new uint8_t[MAX_PACKET_SIZE];
     status = CONNECTION_READY;
 
@@ -99,7 +99,7 @@ bool connection_core::changeDirectory(const std::string &dir) {
     if (!result)
         return false;
     std::string res = root;
-    for (int i = 0; i < _path.size(); ++ i)
+    for (uint32_t i = 0u; i < _path.size(); ++ i)
         res += (_path[i] + std::string("/"));
     if (access(res.data(), 0) == -1)
         return false;
@@ -114,7 +114,7 @@ bool connection_core::createDirectory(const std::string &dir) {
     if (!result)
         return false;
     bool flag_exist = 1;
-    for (int i = 0; i < _path.size(); ++ i) {
+    for (uint32_t i = 0u; i < _path.size(); ++ i) {
         res += (_path[i] + std::string("/"));
         if (access(res.data(), 0) == -1) {
             flag_exist = 0;
@@ -135,7 +135,7 @@ bool connection_core::removeDirectory(const std::string &dir) {
     bool result = get_path(dir, _path);
     if (!result)
         return false;
-    for (int i = 0; i < _path.size(); ++ i)
+    for (uint32_t i = 0u; i < _path.size(); ++ i)
         res += (_path[i] + std::string("/"));
     if (access(res.data(), 0) == -1)
         return false;
@@ -150,7 +150,7 @@ bool connection_core::removeFile(const std::string &file) {
     bool result = get_path(file, _path);
     if (!result)
         return false;
-    for (int i = 0; i < _path.size(); ++ i) {
+    for (uint32_t i = 0u; i < _path.size(); ++ i) {
         res += _path[i];
         if (i != _path.size() - 1)
             res += std::string("/");
@@ -163,7 +163,7 @@ bool connection_core::removeFile(const std::string &file) {
 
 uint32_t connection_core::getCurrentDirectory(uint8_t *data) {
     std::string result("/");
-    for (int i = 0; i < path.size(); ++ i)
+    for (uint32_t i = 0u; i < path.size(); ++ i)
         result += (path[i] + std::string("/"));
     strcpy(reinterpret_cast<char*>(data), result.data());
     return result.length();
