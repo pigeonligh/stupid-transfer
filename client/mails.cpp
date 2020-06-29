@@ -7,15 +7,28 @@ See LICENSE in the project root for license information.
 */
 
 #include "mails.h"
+#include <queue>
+
+std::queue<std::string> _mails;
+
+void init_mail() {
+    while (_mails.size())
+        _mails.pop();
+}
 
 void append_mail(const std::string &msg) {
-    // TODO: append
+    _mails.push(msg);
 }
 
 bool show() {
-    // TODO: 
-    //   show the earliest message, and return if there are any unread message
-    //   if there are no message to show, print some tips
+    if (_mails.empty()) {
+        printf("There is no unread message.\n");
+    }
+    else {
+        printf("%s\n", _mails.front().c_str());
+        _mails.pop();
+    }
+    return _mails.size();
 }
 
 void show_mails(int count) {
@@ -31,5 +44,5 @@ void show_all_mails() {
 }
 
 int count_mails() {
-    // TODO: return the number of unread messages
+    return _mails.size();
 }

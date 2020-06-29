@@ -11,6 +11,7 @@ See LICENSE in the project root for license information.
 
 #include <string>
 
+void init_mail();
 void append_mail(const std::string &);
 
 void show_mails(int count);
