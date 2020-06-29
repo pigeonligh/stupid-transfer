@@ -115,19 +115,21 @@ void connection_info::deal_request(struct packet_data *data) {
 
 void connection_info::deal_send(struct send_data *data) {
     packet pack;
-    packet_data pdata;
+    memset(&pack, 0, sizeof pack);
+    packet_data *pdata = (packet_data*) pack.data;
     pack.type = TYPE_RESPONSE;
     if (check_hash(data)) {
         if (core->setData(data->data)) {
-            pdata.option = SEND_CONTINUE;
+            pdata->option = SEND_CONTINUE;
         } else {
-            pdata.option = STATUS_FAILED;
+            pdata->option = STATUS_FAILED;
         }
     } else {
-        pdata.option = SEND_REPEAT;
+        pdata->option = SEND_REPEAT;
     }
     pack.length = PACKET_HEADER_SIZE + 4;
-    memcpy(pack.data, &pdata, 4);
+
+    send_packet(&pack);
 }
 
 void connection_info::send_packet(struct packet *pack) {
