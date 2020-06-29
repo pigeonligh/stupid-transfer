@@ -117,16 +117,19 @@ void process_packet(connection_info* ci) {
     if (pack.type == TYPE_CONNECT) {
         // this is useless
     } else if (pack.type == TYPE_REQUEST) {
-        // TODO: receive request from client
-        printf("receive request from client %d\n", client_fd);
-        int len = pack.length - PACKET_HEADER_SIZE;
-        pack.data[len] = 0;
-        printf("%s\n", (char*) pack.data);
+        packet_data *data = (packet_data*) pack.data;
+        ci->deal_request(data);
     } else if (pack.type == TYPE_SEND) {
-        // TODO: receive data from client
-        printf("receive data from client %d\n", client_fd);
+        send_data *data = (send_data*) pack.data;
+        ci->deal_send(data);
+    } else if (pack.type == TYPE_SAY) {
+        for (connection_info *rc = first_connection(); rc != nullptr; rc = next_connection()) {
+            if (rc->fd == client_fd) {
+                continue;
+            }
+            ci->send_packet(&pack);
+        }
     } else if (pack.type == KEEPALIVE) {
-        printf("keepalive for client %d\n", client_fd);
         ci->secs = time(nullptr);
     } else {
         printf("unknown type packet\n");

@@ -10,6 +10,10 @@ struct connection_info {
     int32_t count;
 
     struct connection_core* core;
+
+    void send_packet(struct packet *pack);
+    void deal_request(struct packet_data *);
+    void deal_send(struct send_data *);
 };
 
 void init_connections();

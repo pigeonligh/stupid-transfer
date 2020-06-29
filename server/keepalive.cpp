@@ -23,7 +23,7 @@ void send_ka(connection_info* ci) {
             packet pack;
             pack.length = PACKET_HEADER_SIZE;
             pack.type = KEEPALIVE;
-            send(ci->fd, &pack, pack.length, 0);
+            ci->send_packet(&pack);
         }
     }
 }
