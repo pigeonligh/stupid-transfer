@@ -51,4 +51,8 @@ struct send_data {
 
 bool receive_packet(int32_t fd, packet *pack);
 
+void gen_hash(send_data *data);
+
+bool check_hash(send_data *data);
+
 #endif /* _PACKET_H */

@@ -2,6 +2,7 @@
 
 #include "connection_core.h"
 #include "md5/md5.h"
+#include "packet.h"
 
 #include <stdio.h>
 #include <iostream>
@@ -14,6 +15,17 @@ void server_test(const char *dir, int32_t port)
     printf("run in %s\n", dir);
 
     printf("md5sum: %s\n",  md5("Hello world").c_str());
+    printf("test hash\n");
+    send_data _a, _b;
+    memset(_a.data, 0, sizeof _a.data);
+    memset(_b.data, 0, sizeof _b.data);
+    _a.data[0] = 1;
+    _b.data[0] = 1;
+    _b.data[2] = 1;
+    gen_hash(&_a);
+    printf("%s\n", _a.hash);
+    gen_hash(&_b);
+    printf("%s\n", _b.hash);
 
     set_root(dir);
 
