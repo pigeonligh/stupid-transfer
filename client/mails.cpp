@@ -9,15 +9,14 @@ See LICENSE in the project root for license information.
 #include "mails.h"
 #include <queue>
 
-std::queue<std::string> _mails;
+std::deque<std::string> _mails;
 
 void init_mail() {
-    while (_mails.size())
-        _mails.pop();
+    _mails.clear();
 }
 
 void append_mail(const std::string &msg) {
-    _mails.push(msg);
+    _mails.push_back(msg);
 }
 
 bool show() {
@@ -26,7 +25,7 @@ bool show() {
     }
     else {
         printf("%s\n", _mails.front().c_str());
-        _mails.pop();
+        _mails.pop_front();
     }
     return _mails.size();
 }
