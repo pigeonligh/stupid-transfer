@@ -95,8 +95,8 @@ void connection_info::deal_request(struct packet_data *data) {
         // TODO: ls
     } else if (data->option == REQUEST_CD) {
         pack.type = TYPE_RESPONSE;
-        if (core->changeDirectory(std::string(data->data))) {
-            pdata->option = STATUS_SUCCEED
+        if (core->changeDirectory(std::string((char*) data->data))) {
+            pdata->option = STATUS_SUCCEED;
         }
         else {
             pdata->option = STATUS_FAILED;
@@ -104,7 +104,7 @@ void connection_info::deal_request(struct packet_data *data) {
         pack.length = PACKET_HEADER_SIZE + 4;
     } else if (data->option == REQUEST_RM) {
         pack.type = TYPE_RESPONSE;
-        if (core->removeFile(std::string(data->data))) {
+        if (core->removeFile(std::string((char*) data->data))) {
             pdata->option = STATUS_SUCCEED;
         }
         else {
@@ -119,10 +119,10 @@ void connection_info::deal_request(struct packet_data *data) {
         else {
             pdata->option = STATUS_FAILED;
         }
-        pack.length = PACKET_HEADER_SIZE + 4 + strlen(pdata->data);
+        pack.length = PACKET_HEADER_SIZE + 4 + strlen((char*) pdata->data);
     } else if (data->option == REQUEST_MKDIR) {
         pack.type = TYPE_RESPONSE;
-        if (core->createDirectory(std::string(data->data))) {
+        if (core->createDirectory(std::string((char*) data->data))) {
             pdata->option = STATUS_SUCCEED;
         }
         else {
@@ -131,7 +131,7 @@ void connection_info::deal_request(struct packet_data *data) {
         pack.length = PACKET_HEADER_SIZE + 4;
     } else if (data->option == REQUEST_RMDIR) {
         pack.type = TYPE_RESPONSE;
-        if (core->removeDirectory(std::string(data->data))) {
+        if (core->removeDirectory(std::string((char*) data->data))) {
             pdata->option = STATUS_SUCCEED;
         }
         else {

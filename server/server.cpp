@@ -135,7 +135,7 @@ void process_packet(connection_info* ci) {
             if (rc->fd == client_fd) {
                 continue;
             }
-            ci->send_packet(&pack);
+            rc->send_packet(&pack);
         }
     } else if (pack.type == KEEPALIVE) {
         ci->secs = time(nullptr);
