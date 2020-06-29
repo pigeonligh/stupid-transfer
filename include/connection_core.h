@@ -1,3 +1,11 @@
+/*
+Copyright 2020 The FileTransfer Authors.
+
+Licensed under the GNU General Public License, v3.0
+
+See LICENSE in the project root for license information.
+*/
+
 #ifndef _CONNECTION_CORE_H_
 #define _CONNECTION_CORE_H_
 
@@ -33,9 +41,9 @@ private:
     FILE *fd;
     DIR *dir;
 
-    uint8_t status;
+    int8_t status;
     uint8_t *buff;
-    uint32_t length;
+    int32_t length;
 
     std::vector<std::string> path;
 

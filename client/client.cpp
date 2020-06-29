@@ -1,3 +1,11 @@
+/*
+Copyright 2020 The FileTransfer Authors.
+
+Licensed under the GNU General Public License, v3.0
+
+See LICENSE in the project root for license information.
+*/
+
 #include "client.h"
 
 #include "event.h"
@@ -21,6 +29,9 @@ uint8_t now_status;
 int32_t file_fd;
 
 bool process_packet();
+
+void deal_response(packet_data *);
+void deal_send(send_data *);
 
 int32_t connect_server(const char* ipaddr, int32_t port) {
     int32_t fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);

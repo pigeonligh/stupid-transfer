@@ -1,3 +1,11 @@
+/*
+Copyright 2020 The FileTransfer Authors.
+
+Licensed under the GNU General Public License, v3.0
+
+See LICENSE in the project root for license information.
+*/
+
 #include "connection_core.h"
 #include "packet.h"
 
@@ -248,10 +256,9 @@ bool connection_core::prepareData() {
         }
         send_data _data;
         memset(&_data, 0, sizeof _data);
-        int _length = fread(_data.data, MAX_PACKET_SIZE - HASH_SIZE, 1, fd);
+        length = fread(_data.data, MAX_PACKET_SIZE - HASH_SIZE, 1, fd);
         gen_hash(&_data);
         memcpy(buff, &_data, MAX_PACKET_SIZE);
-        length = _length;
     } else {
         return false;
     }
@@ -264,7 +271,7 @@ bool connection_core::setData(uint8_t *data) {
             return false;
         }
         int _length = 0;
-        while (*(data + _length) != '\0')
+        while (*(data + _length) != '\0' && _length < MAX_PACKET_SIZE - HASH_SIZE)
             ++ _length;
         fwrite(data, _length, 1, fd);
     } else {
