@@ -250,6 +250,7 @@ bool connection_core::prepareData() {
                 _length -= d_length;
             }
             else {
+                seekdir(dir, telldir(dir) - 1);
                 break ;
             }
         }
