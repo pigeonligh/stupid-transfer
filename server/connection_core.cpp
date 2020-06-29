@@ -222,23 +222,36 @@ bool connection_core::prepareData() {
         if (dir == nullptr) {
             return false;
         }
-        // TODO: 
-        // 1. list file/dir from `dir`
-        // 2. write into a send_data object(one filename per 256 positions, 7 filenames per packet)
-        // 3. list `.` and `..`(if can) first
-        // 4. hash it
-        // 5. copy data into buff
-        // 6. set length = MAX_PACKET_SIZE
+        int _length = MAX_PACKET_SIZE - HASH_SIZE;
+        send_data _data;
+        memset(&_data, 0, sizeof _data);
+        std::string _data_s;
+        for (;;) {
+            if (_length <= 256)
+                break ;
+            struct dirent *_dir = readdir(dir);
+            if (_dir == nullptr)
+                break ;
+            int d_length = strlen(_dir->d_name);
+            if (d_length < _length) {
+                _data_s += std::string("\n") + std::string(_dir->d_name);
+                _length -= d_length + 1;
+            }
+        }
+        memcpy(_data.data, _data_s.c_str(), _data_s.size());
+        gen_hash(&_data);
+        memcpy(buff, &_data, MAX_PACKET_SIZE);
+        length = _data_s.size();
     } else if (status == CONNECTION_DOWNLOADING) {
         if (fd == nullptr) {
             return false;
         }
-        // TODO: 
-        // 1. load file from fd
-        // 2. write into a send_data object
-        // 3. hash it
-        // 4. copy data into buff
-        // 5. set length = MAX_PACKET_SIZE
+        send_data _data;
+        memset(&_data, 0, sizeof _data);
+        int _length = fread(_data.data, MAX_PACKET_SIZE - HASH_SIZE, 1, fd);
+        gen_hash(&_data);
+        memcpy(buff, &_data, MAX_PACKET_SIZE);
+        length = _length;
     } else {
         return false;
     }
@@ -250,11 +263,10 @@ bool connection_core::setData(uint8_t *data) {
         if (fd == nullptr) {
             return false;
         }
-        // TODO: 
-        // 1. data -> (send_data *)
-        // 1. check hash
-        // 2. write data into fd
-        // notice: check length by char '\0'
+        int _length = 0;
+        while (*(data + _length) != '\0')
+            ++ _length;
+        fwrite(data, _length, 1, fd);
     } else {
         return false;
     }
