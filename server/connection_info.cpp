@@ -128,6 +128,8 @@ void connection_info::deal_send(struct send_data *data) {
         pdata->option = SEND_REPEAT;
     }
     pack.length = PACKET_HEADER_SIZE + 4;
+
+    send_packet(&pack);
 }
 
 void connection_info::send_packet(struct packet *pack) {
