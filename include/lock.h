@@ -9,10 +9,6 @@ See LICENSE in the project root for license information.
 #ifndef _LOCK_H_
 #define _LOCK_H_
 
-#include <pthread.h>
-
-extern pthread_mutex_t mutex;
-
 void set_lock();
 void unset_lock();
 
