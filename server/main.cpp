@@ -33,7 +33,6 @@ void set_default_config(char *dir, int *port) {
 }
 
 void load_config(const char *config, char *dir, int *port) {
-    // TODO: load config from file
     FILE *file = fopen(config, "r");
     if (file != nullptr) {
         if (fscanf(file, "%s %d", dir, port) != 2) {

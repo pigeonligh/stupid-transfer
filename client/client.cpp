@@ -121,9 +121,9 @@ void send_packet(packet *pack) {
 
 
 void deal_response(packet_data *data) {
-    // TODO
+    // TODO: deal response
 }
 
 void deal_send(send_data *data) {
-    // TODO
+    // TODO: deal send
 }
