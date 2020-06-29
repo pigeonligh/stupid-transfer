@@ -221,8 +221,11 @@ uint32_t connection_core::getData(bool checked, uint8_t *data) {
             return -1;
         }
     }
-    memcpy(data, buff, length);
-    return length;
+    if (length > 0) {
+        memcpy(data, buff, MAX_PACKET_SIZE);
+        return MAX_PACKET_SIZE;
+    }
+    return 0;
 }
 
 bool connection_core::prepareData() {
@@ -235,15 +238,19 @@ bool connection_core::prepareData() {
         memset(&_data, 0, sizeof _data);
         std::string _data_s;
         for (;;) {
-            if (_length <= 256)
-                break ;
             struct dirent *_dir = readdir(dir);
             if (_dir == nullptr)
                 break ;
-            int d_length = strlen(_dir->d_name);
-            if (d_length < _length) {
-                _data_s += std::string("\n") + std::string(_dir->d_name);
-                _length -= d_length + 1;
+            int d_length = strlen(_dir->d_name) + 1 + (_dir->d_type == DT_DIR);
+            if (d_length <= _length) {
+                _data_s += std::string(_dir->d_name);
+                if (_dir->d_type == DT_DIR)
+                    _data_s += std::string("/");
+                _data_s += std::string("\n");
+                _length -= d_length;
+            }
+            else {
+                break ;
             }
         }
         memcpy(_data.data, _data_s.c_str(), _data_s.size());
