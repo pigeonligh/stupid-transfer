@@ -1,9 +1,13 @@
 #include "connection_info.h"
 #include "connection_core.h"
+#include "packet.h"
 
-#include <unistd.h>
-#include <time.h>
 #include <vector>
+
+#include <time.h>
+#include <unistd.h>
+#include <string.h>
+#include <sys/socket.h>
 
 typedef std::vector<connection_info *> vci;
 std::vector<connection_info *> connections;
@@ -73,4 +77,52 @@ void close_all_connections()
         close_ci(*iter);
     }
     connections.clear();
+}
+
+void connection_info::deal_request(struct packet_data *data) {
+    if (data->option == REQUEST_LS) {
+        // TODO: ls
+    } else if (data->option == REQUEST_CD) {
+        // TODO: cd
+    } else if (data->option == REQUEST_RM) {
+        // TODO: rm
+    } else if (data->option == REQUEST_PWD) {
+        // TODO: pwd
+    } else if (data->option == REQUEST_MKDIR) {
+        // TODO: mkdir
+    } else if (data->option == REQUEST_RMDIR) {
+        // TODO: rmdir
+    } else if (data->option == REQUEST_UPLOAD) {
+        // TODO: upload
+    } else if (data->option == REQUEST_DOWNLOAD) {
+        // TODO: download
+    } else if (data->option == SEND_CONTINUE) {
+        // TODO: continue
+    } else if (data->option == SEND_REPEAT) {
+        // TODO: repeat
+    } else if (data->option == SEND_DONE) {
+        // TODO: done
+    }
+}
+
+void connection_info::deal_send(struct send_data *data) {
+    packet pack;
+    packet_data pdata;
+    pack.type = TYPE_RESPONSE;
+    if (check_hash(data)) {
+        if (core->setData(data->data)) {
+            pdata.option = SEND_CONTINUE;
+        } else {
+            pdata.option = STATUS_FAILED;
+        }
+    } else {
+        pdata.option = SEND_REPEAT;
+    }
+    pack.length = PACKET_HEADER_SIZE + 4;
+    memcpy(pack.data, &pdata, 4);
+}
+
+void connection_info::send_packet(struct packet *pack) {
+    int length = pack->length;
+    send(fd, pack, length, 0);
 }

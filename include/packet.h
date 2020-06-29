@@ -12,6 +12,7 @@
 #define TYPE_REQUEST 102
 #define TYPE_RESPONSE 103
 #define TYPE_SEND 104
+#define TYPE_SAY 105
 
 #define KEEPALIVE 110
 

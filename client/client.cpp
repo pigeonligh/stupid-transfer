@@ -3,6 +3,7 @@
 #include "event.h"
 #include "lock.h"
 #include "packet.h"
+#include "mails.h"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -89,13 +90,14 @@ bool process_packet() {
     if (pack.type == TYPE_CONNECTED) {
         // this is useless
     } else if (pack.type == TYPE_RESPONSE) {
-        // TODO: receive request from server
-        printf("receive response from server\n");
+        packet_data *data = (packet_data*) pack.data;
+        deal_response(data);
     } else if (pack.type == TYPE_SEND) {
-        // TODO: receive data from server
-        printf("receive data from server\n");
+        send_data *data = (send_data*) pack.data;
+        deal_send(data);
+    } else if (pack.type == TYPE_SAY) {
+        append_mail(std::string((char*) pack.data));
     } else if (pack.type == KEEPALIVE) {
-        // printf("receive keepalive from server\n");
         send_packet(&pack);
     } else {
         printf("unknown type packet\n");
@@ -115,4 +117,13 @@ bool is_waiting() {
 void send_packet(packet *pack) {
     int length = pack->length;
     send(sock_fd, pack, length, 0);
+}
+
+
+void deal_response(packet_data *data) {
+    // TODO
+}
+
+void deal_send(send_data *data) {
+    // TODO
 }
