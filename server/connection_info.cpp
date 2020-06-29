@@ -88,18 +88,56 @@ void close_all_connections()
 }
 
 void connection_info::deal_request(struct packet_data *data) {
+    packet pack;
+    memset(&pack, 0, sizeof pack);
+    packet_data *pdata = (packet_data *)pack.data;
     if (data->option == REQUEST_LS) {
         // TODO: ls
     } else if (data->option == REQUEST_CD) {
-        // TODO: cd
+        pack.type = TYPE_RESPONSE;
+        if (core->changeDirectory(std::string(data->data))) {
+            pdata->option = STATUS_SUCCEED
+        }
+        else {
+            pdata->option = STATUS_FAILED;
+        }
+        pack.length = PACKET_HEADER_SIZE + 4;
     } else if (data->option == REQUEST_RM) {
-        // TODO: rm
+        pack.type = TYPE_RESPONSE;
+        if (core->removeFile(std::string(data->data))) {
+            pdata->option = STATUS_SUCCEED;
+        }
+        else {
+            pdata->option = STATUS_FAILED;
+        }
+        pack.length = PACKET_HEADER_SIZE + 4;
     } else if (data->option == REQUEST_PWD) {
-        // TODO: pwd
+        pack.type = TYPE_RESPONSE;
+        if (core->getCurrentDirectory(pdata->data)) {
+            pdata->option = STATUS_SUCCEED;
+        }
+        else {
+            pdata->option = STATUS_FAILED;
+        }
+        pack.length = PACKET_HEADER_SIZE + 4 + strlen(pdata->data);
     } else if (data->option == REQUEST_MKDIR) {
-        // TODO: mkdir
+        pack.type = TYPE_RESPONSE;
+        if (core->createDirectory(std::string(data->data))) {
+            pdata->option = STATUS_SUCCEED;
+        }
+        else {
+            pdata->option = STATUS_FAILED;
+        }
+        pack.length = PACKET_HEADER_SIZE + 4;
     } else if (data->option == REQUEST_RMDIR) {
-        // TODO: rmdir
+        pack.type = TYPE_RESPONSE;
+        if (core->removeDirectory(std::string(data->data))) {
+            pdata->option = STATUS_SUCCEED;
+        }
+        else {
+            pdata->option = STATUS_FAILED;
+        }
+        pack.length = PACKET_HEADER_SIZE + 4;
     } else if (data->option == REQUEST_UPLOAD) {
         // TODO: upload
     } else if (data->option == REQUEST_DOWNLOAD) {
@@ -111,6 +149,7 @@ void connection_info::deal_request(struct packet_data *data) {
     } else if (data->option == SEND_DONE) {
         // TODO: done
     }
+    send_packet(&pack);
 }
 
 void connection_info::deal_send(struct send_data *data) {
