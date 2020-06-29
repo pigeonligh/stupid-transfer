@@ -8,6 +8,8 @@ See LICENSE in the project root for license information.
 
 #include "lock.h"
 
+#include <pthread.h>
+
 pthread_mutex_t mutex;
 
 void set_lock() {
