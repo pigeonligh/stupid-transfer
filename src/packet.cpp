@@ -9,12 +9,15 @@ See LICENSE in the project root for license information.
 #include "packet.h"
 
 #include <stdio.h>
+#include <string.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <string.h>
 #include "md5/md5.h"
 
 bool receive_packet(int32_t fd, packet *pack) {
+    memset(pack, 0, sizeof(packet));
+
     int32_t len = 0;
 
     while (len < PACKET_HEADER_SIZE) {

@@ -173,7 +173,7 @@ uint32_t connection_core::getCurrentDirectory(uint8_t *data) {
     std::string result("/");
     for (uint32_t i = 0u; i < path.size(); ++ i)
         result += (path[i] + std::string("/"));
-    strcpy(reinterpret_cast<char*>(data), result.data());
+    strcpy((char*) data, result.c_str());
     return result.length();
 }
 

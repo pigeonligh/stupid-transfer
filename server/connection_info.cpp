@@ -113,13 +113,14 @@ void connection_info::deal_request(struct packet_data *data) {
         pack.length = PACKET_HEADER_SIZE + 4;
     } else if (data->option == REQUEST_PWD) {
         pack.type = TYPE_RESPONSE;
-        if (core->getCurrentDirectory(pdata->data)) {
+        int length = core->getCurrentDirectory(pdata->data);
+        if (length) {
             pdata->option = STATUS_SUCCEED;
         }
         else {
             pdata->option = STATUS_FAILED;
         }
-        pack.length = PACKET_HEADER_SIZE + 4 + strlen((char*) pdata->data);
+        pack.length = PACKET_HEADER_SIZE + 4 + length;
     } else if (data->option == REQUEST_MKDIR) {
         pack.type = TYPE_RESPONSE;
         if (core->createDirectory(std::string((char*) data->data))) {

@@ -16,6 +16,7 @@ See LICENSE in the project root for license information.
 #include "client.h"
 #include "packet.h"
 #include "mails.h"
+#include "lock.h"
 
 bool connected = false;
 
@@ -61,6 +62,10 @@ int main() {
     }
 }
 
+void show_help() {
+    printf("this is help!\n");
+}
+
 void process_command(const char* cmd) {
     packet pack;
     memset(&pack, 0, sizeof pack);
@@ -69,26 +74,167 @@ void process_command(const char* cmd) {
 
     if (strcmp(cmd, "exit") == 0) {
         client_stop();
-        connected = false;
-        printf("disconnected\n");
+        exit(0);
     } else if (strcmp(cmd, "show") == 0) {
-        // show mail
         gets(param);
+        set_lock();
         int number;
         if (sscanf(param, "%d", &number) == 1) {
             show_mails(number);
         } else {
             show_mails(1);
         }
+        unset_lock();
     } else if (strcmp(cmd, "showall") == 0) {
-        show_all_mails();
-    } else if (strcmp(cmd, "say") == 0) {
-        // say
         gets(param);
+        set_lock();
+        show_all_mails();
+        unset_lock();
+    } else if (strcmp(cmd, "say") == 0) {
+        gets(param);
+        set_lock();
         int len = strlen(param);
         pack.length = PACKET_HEADER_SIZE + len;
         pack.type = TYPE_SAY;
         memcpy(pack.data, param, len);
         send_packet(&pack);
+        unset_lock();
+    } else if (strcmp(cmd, "ls") == 0) {
+        // ls
+        gets(param);
+        set_lock();
+        set_status(STATUS_TRANSFERING);
+        pack.length = PACKET_HEADER_SIZE + 4;
+        pack.type = TYPE_REQUEST;
+        packet_data *data = (packet_data*) pack.data;
+        data->option = REQUEST_LS;
+        set_command(data->option);
+        send_packet(&pack);
+        unset_lock();
+    } else if (strcmp(cmd, "cd") == 0) {
+        // cd
+        gets(param);
+        set_lock();
+        if (sscanf(param, "%s", temp) == 1) {
+            set_status(STATUS_WAITING);
+            int len = strlen(temp);
+            pack.length = PACKET_HEADER_SIZE + 4 + len;
+            pack.type = TYPE_REQUEST;
+            packet_data *data = (packet_data*) pack.data;
+            data->option = REQUEST_CD;
+            set_command(data->option);
+            memcpy(data->data, temp, len);
+            send_packet(&pack);
+        } else {
+            printf("command error\n");
+        }
+        unset_lock();
+    } else if (strcmp(cmd, "rm") == 0) {
+        // rm
+        gets(param);
+        set_lock();
+        if (sscanf(param, "%s", temp) == 1) {
+            set_status(STATUS_WAITING);
+            int len = strlen(temp);
+            pack.length = PACKET_HEADER_SIZE + 4 + len;
+            pack.type = TYPE_REQUEST;
+            packet_data *data = (packet_data*) pack.data;
+            data->option = REQUEST_RM;
+            set_command(data->option);
+            memcpy(data->data, temp, len);
+            send_packet(&pack);
+        } else {
+            printf("command error\n");
+        }
+        unset_lock();
+    } else if (strcmp(cmd, "pwd") == 0) {
+        // pwd
+        gets(param);
+        set_lock();
+        set_status(STATUS_WAITING);
+        pack.length = PACKET_HEADER_SIZE + 4;
+        pack.type = TYPE_REQUEST;
+        packet_data *data = (packet_data*) pack.data;
+        data->option = REQUEST_PWD;
+        set_command(data->option);
+        send_packet(&pack);
+        unset_lock();
+    } else if (strcmp(cmd, "rmdir") == 0) {
+        // rmkdir
+        gets(param);
+        set_lock();
+        if (sscanf(param, "%s", temp) == 1) {
+            set_status(STATUS_WAITING);
+            int len = strlen(temp);
+            pack.length = PACKET_HEADER_SIZE + 4 + len;
+            pack.type = TYPE_REQUEST;
+            packet_data *data = (packet_data*) pack.data;
+            data->option = REQUEST_RMDIR;
+            set_command(data->option);
+            memcpy(data->data, temp, len);
+            send_packet(&pack);
+        } else {
+            printf("command error\n");
+        }
+        unset_lock();
+    } else if (strcmp(cmd, "mkdir") == 0) {
+        // mkdir
+        gets(param);
+        set_lock();
+        if (sscanf(param, "%s", temp) == 1) {
+            set_status(STATUS_WAITING);
+            int len = strlen(temp);
+            pack.length = PACKET_HEADER_SIZE + 4 + len;
+            pack.type = TYPE_REQUEST;
+            packet_data *data = (packet_data*) pack.data;
+            data->option = REQUEST_MKDIR;
+            set_command(data->option);
+            memcpy(data->data, temp, len);
+            send_packet(&pack);
+        } else {
+            printf("command error\n");
+        }
+        unset_lock();
+    } else if (strcmp(cmd, "upload") == 0) {
+        // upload
+        gets(param);
+        set_lock();
+        if (sscanf(param, "%s", temp) == 1) {
+            set_status(STATUS_TRANSFERING);
+            int len = strlen(temp);
+            pack.length = PACKET_HEADER_SIZE + 4 + len;
+            pack.type = TYPE_REQUEST;
+            packet_data *data = (packet_data*) pack.data;
+            data->option = REQUEST_UPLOAD;
+            set_command(data->option);
+            memcpy(data->data, temp, len);
+            send_packet(&pack);
+        } else {
+            printf("command error\n");
+        }
+        unset_lock();
+    } else if (strcmp(cmd, "download") == 0) {
+        // download
+        gets(param);
+        set_lock();
+        if (sscanf(param, "%s", temp) == 1) {
+            set_status(STATUS_TRANSFERING);
+            int len = strlen(temp);
+            pack.length = PACKET_HEADER_SIZE + 4 + len;
+            pack.type = TYPE_REQUEST;
+            packet_data *data = (packet_data*) pack.data;
+            data->option = REQUEST_DOWNLOAD;
+            set_command(data->option);
+            memcpy(data->data, temp, len);
+            send_packet(&pack);
+        } else {
+            printf("command error\n");
+        }
+        unset_lock();
+    } else if (strcmp(cmd, "help") == 0) {
+        gets(param);
+        show_help();
+    } else {
+        printf("command error\n");
     }
 }

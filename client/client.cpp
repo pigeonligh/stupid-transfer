@@ -15,6 +15,7 @@ See LICENSE in the project root for license information.
 
 #include <stdio.h>
 #include <unistd.h>
+#include <string.h>
 #include <pthread.h>
 #include <sys/epoll.h>
 #include <arpa/inet.h>
@@ -26,11 +27,12 @@ int32_t sock_fd = -1;
 pthread_t client_thread;
 
 uint8_t now_status;
+uint8_t now_command;
 int32_t file_fd;
 
 bool process_packet();
 
-void deal_response(packet_data *);
+void deal_response(packet_data *, int32_t);
 void deal_send(send_data *);
 
 int32_t connect_server(const char* ipaddr, int32_t port) {
@@ -102,7 +104,7 @@ bool process_packet() {
         // this is useless
     } else if (pack.type == TYPE_RESPONSE) {
         packet_data *data = (packet_data*) pack.data;
-        deal_response(data);
+        deal_response(data, pack.length);
     } else if (pack.type == TYPE_SEND) {
         send_data *data = (send_data*) pack.data;
         deal_send(data);
@@ -121,6 +123,10 @@ void set_status(int status) {
     now_status = status;
 }
 
+void set_command(int command) {
+    now_command = command;
+}
+
 bool is_waiting() {
     return now_status != STATUS_READY;
 }
@@ -131,8 +137,38 @@ void send_packet(packet *pack) {
 }
 
 
-void deal_response(packet_data *data) {
-    // TODO: deal response
+void deal_response(packet_data *data, int32_t length) {
+    packet pack;
+    memset(&pack, 0, sizeof pack);
+    packet_data *pdata = (packet_data*) pack.data;
+    if (data->option == STATUS_SUCCEED) {
+        if (now_command == REQUEST_LS) {
+            // ls
+        } else if (now_command == REQUEST_CD) {
+            set_status(STATUS_READY);
+        } else if (now_command == REQUEST_RM) {
+            set_status(STATUS_READY);
+        } else if (now_command == REQUEST_PWD) {
+            data->data[length - PACKET_HEADER_SIZE - 4] = 0;
+            printf("%d\n", length);
+            printf("%s\n", (char*) data->data);
+            set_status(STATUS_READY);
+        } else if (now_command == REQUEST_RMDIR) {
+            set_status(STATUS_READY);
+        } else if (now_command == REQUEST_MKDIR) {
+            set_status(STATUS_READY);
+        } else if (now_command == REQUEST_UPLOAD) {
+            // upload
+        } else if (now_command == REQUEST_DOWNLOAD) {
+            // download
+        } else {
+            fprintf(stderr, "something is wrong.1\n");
+            set_status(STATUS_READY);
+        } 
+    } else {
+        fprintf(stderr, "something is wrong. (Error %d)\n", data->option);
+        set_status(STATUS_READY);
+    }
 }
 
 void deal_send(send_data *data) {
