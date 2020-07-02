@@ -98,6 +98,7 @@ void connection_info::deal_request(struct packet_data *data) {
         }
         else {
             pdata->option = STATUS_FAILED;
+            core->unsetWorkingStatus();
         }
         pack.length = PACKET_HEADER_SIZE + 4;
     } else if (data->option == REQUEST_CD) {
@@ -107,6 +108,7 @@ void connection_info::deal_request(struct packet_data *data) {
         }
         else {
             pdata->option = STATUS_FAILED;
+            core->unsetWorkingStatus();
         }
         pack.length = PACKET_HEADER_SIZE + 4;
     } else if (data->option == REQUEST_RM) {
@@ -116,6 +118,7 @@ void connection_info::deal_request(struct packet_data *data) {
         }
         else {
             pdata->option = STATUS_FAILED;
+            core->unsetWorkingStatus();
         }
         pack.length = PACKET_HEADER_SIZE + 4;
     } else if (data->option == REQUEST_PWD) {
@@ -126,6 +129,7 @@ void connection_info::deal_request(struct packet_data *data) {
         }
         else {
             pdata->option = STATUS_FAILED;
+            core->unsetWorkingStatus();
         }
         pack.length = PACKET_HEADER_SIZE + 4 + length;
     } else if (data->option == REQUEST_MKDIR) {
@@ -135,6 +139,7 @@ void connection_info::deal_request(struct packet_data *data) {
         }
         else {
             pdata->option = STATUS_FAILED;
+            core->unsetWorkingStatus();
         }
         pack.length = PACKET_HEADER_SIZE + 4;
     } else if (data->option == REQUEST_RMDIR) {
@@ -144,6 +149,7 @@ void connection_info::deal_request(struct packet_data *data) {
         }
         else {
             pdata->option = STATUS_FAILED;
+            core->unsetWorkingStatus();
         }
         pack.length = PACKET_HEADER_SIZE + 4;
     } else if (data->option == REQUEST_UPLOAD) {
@@ -156,6 +162,7 @@ void connection_info::deal_request(struct packet_data *data) {
             pack.type = TYPE_RESPONSE;
             pack.length = PACKET_HEADER_SIZE + 4;
             pdata->option = STATUS_FAILED;
+            core->unsetWorkingStatus();
         }
         else if (_length == 0) {
             pack.type = TYPE_RESPONSE;
@@ -172,6 +179,7 @@ void connection_info::deal_request(struct packet_data *data) {
             pack.type = TYPE_RESPONSE;
             pack.length = PACKET_HEADER_SIZE + 4;
             pdata->option = STATUS_FAILED;
+            core->unsetWorkingStatus();
         }
         else {
             pack.type = TYPE_SEND;
@@ -179,6 +187,11 @@ void connection_info::deal_request(struct packet_data *data) {
         }
     } else if (data->option == SEND_DONE) {
         // TODO: done
+        core->unsetWorkingStatus();
+    } else if (data->option == STATUS_SUCCEED) {
+        //
+    } else if (data->option == STATUS_FAILED) {
+        core->unsetWorkingStatus();
     }
     send_packet(&pack);
 }
