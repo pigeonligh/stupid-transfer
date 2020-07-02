@@ -246,6 +246,7 @@ void deal_response(packet_data *data, int32_t length) {
         }
         send_packet(&pack);
     } else if (data->option == SEND_DONE) {
+        printf("\n");
         set_status(STATUS_READY);
     } else {
         fprintf(stderr, "something is wrong. (Error %d)\n", data->option);

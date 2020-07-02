@@ -70,7 +70,7 @@ void process_command(const char* cmd) {
     packet pack;
     memset(&pack, 0, sizeof pack);
     char param[2048];
-    char temp[2048];
+    char temp[2048], temp2[2048];
 
     if (strcmp(cmd, "exit") == 0) {
         client_stop();
@@ -199,15 +199,16 @@ void process_command(const char* cmd) {
         // upload
         gets(param);
         set_lock();
-        if (sscanf(param, "%s", temp) == 1) {
+        if (sscanf(param, "%s %s", temp, temp2) == 2) {
             set_status(STATUS_TRANSFERING);
-            int len = strlen(temp);
+            set_filename(temp);
+            int len = strlen(temp2);
             pack.length = PACKET_HEADER_SIZE + 4 + len;
             pack.type = TYPE_REQUEST;
             packet_data *data = (packet_data*) pack.data;
             data->option = REQUEST_UPLOAD;
             set_command(data->option);
-            memcpy(data->data, temp, len);
+            memcpy(data->data, temp2, len);
             send_packet(&pack);
         } else {
             printf("command error\n");
@@ -217,8 +218,9 @@ void process_command(const char* cmd) {
         // download
         gets(param);
         set_lock();
-        if (sscanf(param, "%s", temp) == 1) {
+        if (sscanf(param, "%s %s", temp, temp2) == 2) {
             set_status(STATUS_TRANSFERING);
+            set_filename(temp2);
             int len = strlen(temp);
             pack.length = PACKET_HEADER_SIZE + 4 + len;
             pack.type = TYPE_REQUEST;
