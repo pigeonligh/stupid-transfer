@@ -90,6 +90,7 @@ bool remove_dir(const std::string &dir) {
 
 connection_core::connection_core() {
     fd = nullptr;
+    dir = nullptr;
     buff = new uint8_t[MAX_PACKET_SIZE];
     status = CONNECTION_READY;
 
