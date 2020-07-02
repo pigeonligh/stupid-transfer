@@ -23,10 +23,10 @@ void set_root(const std::string &dir) {
 }
 
 bool get_path(std::string dir, std::vector<std::string> &path) {
-    if (dir[dir.size() - 1] != '/')
-        dir += std::string("/");
     if (dir.size() == 0)
         return false;
+    if (dir[dir.size() - 1] != '/')
+        dir += std::string("/");
     if (dir[0] == '/') {
         dir = dir.substr(1, dir.size() - 1);
         path.clear();
@@ -197,6 +197,7 @@ bool connection_core::setWorkingStatus(uint8_t sign, const std::string &file) {
     for (uint32_t i = 0u; i < _path.size(); ++ i)
         _file += (path[i] + std::string("/"));
     unsetWorkingStatus();
+    printf("set %u\n", sign);
     if (sign == REQUEST_LS) {
         _file = _file.substr(0, _file.size() - 1);
         dir = opendir(_file.c_str());
