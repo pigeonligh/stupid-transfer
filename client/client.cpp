@@ -39,7 +39,7 @@ void deal_send(send_data *);
 bool open_file(const std::string &, const char *);
 
 uint32_t getData(bool, uint8_t *);
-bool setData(uint8_t *);
+bool setData(uint8_t *, int32_t);
 
 int32_t connect_server(const char* ipaddr, int32_t port) {
     int32_t fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -153,6 +153,7 @@ void deal_response(packet_data *data, int32_t length) {
     if (now_status == STATUS_READY) {
         return;
     }
+    printf("response %d\n", data->option);
     if (data->option == STATUS_SUCCEED) {
         if (now_command == REQUEST_LS) {
             packet pack;
@@ -208,7 +209,7 @@ void deal_response(packet_data *data, int32_t length) {
                 set_status(STATUS_READY);
             }
         } else {
-            fprintf(stderr, "something is wrong.1\n");
+            fprintf(stderr, "something is wrong.\n");
             set_status(STATUS_READY);
         } 
     } else if (data->option == SEND_CONTINUE) {
@@ -263,7 +264,7 @@ void deal_send(send_data *data) {
     packet_data *pdata = (packet_data*) pack.data;
     pack.type = TYPE_REQUEST;
     if (check_hash(data)) {
-        if (setData(data->data)) {
+        if (setData(data->data, data->length)) {
             pdata->option = SEND_CONTINUE;
         } else {
             pdata->option = STATUS_FAILED;
@@ -297,8 +298,9 @@ bool prepareData() {
         }
         send_data _data;
         memset(&_data, 0, sizeof _data);
-        length = fread(_data.data, MAX_PACKET_SIZE - HASH_SIZE, 1, file_fd);
+        length = fread(_data.data, 1, MAX_PACKET_SIZE - HASH_SIZE, file_fd);
         gen_hash(&_data);
+        _data.length = length;
         memcpy(buff, &_data, MAX_PACKET_SIZE);
     } else {
         return false;
@@ -319,19 +321,13 @@ uint32_t getData(bool checked, uint8_t *data) {
     return 0;
 }
 
-bool setData(uint8_t *data) {
+bool setData(uint8_t *data, int32_t _length) {
     if (now_command == REQUEST_DOWNLOAD) {
         if (file_fd == nullptr) {
             return false;
         }
-        int _length = 0;
-        while (*(data + _length) != '\0' && _length < MAX_PACKET_SIZE - HASH_SIZE)
-            ++ _length;
         fwrite(data, _length, 1, file_fd);
     } else if (now_command == REQUEST_LS) {
-        int _length = 0;
-        while (*(data + _length) != '\0' && _length < MAX_PACKET_SIZE - HASH_SIZE)
-            ++ _length;
         data[_length] = 0;
         std::string dirs((char*) data);
         printf("%s", dirs.c_str());

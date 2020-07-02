@@ -270,16 +270,18 @@ bool connection_core::prepareData() {
         }
         memcpy(_data.data, _data_s.c_str(), _data_s.size());
         gen_hash(&_data);
-        memcpy(buff, &_data, MAX_PACKET_SIZE);
         length = _data_s.size();
+        _data.length = length;
+        memcpy(buff, &_data, MAX_PACKET_SIZE);
     } else if (status == CONNECTION_DOWNLOADING) {
         if (fd == nullptr) {
             return false;
         }
         send_data _data;
         memset(&_data, 0, sizeof _data);
-        length = fread(_data.data, MAX_PACKET_SIZE - HASH_SIZE, 1, fd);
+        length = fread(_data.data, 1, MAX_PACKET_SIZE - HASH_SIZE, fd);
         gen_hash(&_data);
+        _data.length = length;
         memcpy(buff, &_data, MAX_PACKET_SIZE);
     } else {
         return false;
@@ -287,14 +289,11 @@ bool connection_core::prepareData() {
     return true;
 }
 
-bool connection_core::setData(uint8_t *data) {
+bool connection_core::setData(uint8_t *data, int32_t _length) {
     if (status == CONNECTION_UPLOADING) {
         if (fd == nullptr) {
             return false;
         }
-        int _length = 0;
-        while (*(data + _length) != '\0' && _length < MAX_PACKET_SIZE - HASH_SIZE)
-            ++ _length;
         fwrite(data, _length, 1, fd);
     } else {
         return false;

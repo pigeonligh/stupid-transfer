@@ -35,7 +35,7 @@ struct connection_core {
     void unsetWorkingStatus();
 
     int32_t getData(bool checked, uint8_t *data);
-    bool setData(uint8_t *data);
+    bool setData(uint8_t *data, int32_t _length);
 
 private:
     FILE *fd;

@@ -55,7 +55,8 @@ struct packet_data {
 
 struct send_data {
     uint8_t data[MAX_PACKET_SIZE - HASH_SIZE];
-    uint8_t hash[HASH_SIZE];
+    uint8_t hash[HASH_SIZE - 4];
+    uint32_t length;
 };
 
 bool receive_packet(int32_t fd, packet *pack);

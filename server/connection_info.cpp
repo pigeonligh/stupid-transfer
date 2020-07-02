@@ -211,7 +211,7 @@ void connection_info::deal_send(struct send_data *data) {
     packet_data *pdata = (packet_data*) pack.data;
     pack.type = TYPE_RESPONSE;
     if (check_hash(data)) {
-        if (core->setData(data->data)) {
+        if (core->setData(data->data, data->length)) {
             pdata->option = SEND_CONTINUE;
         } else {
             pdata->option = STATUS_FAILED;
