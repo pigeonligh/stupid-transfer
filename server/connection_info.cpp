@@ -93,7 +93,7 @@ void connection_info::deal_request(struct packet_data *data) {
     packet_data *pdata = (packet_data *)pack.data;
     if (data->option == REQUEST_LS) {
         pack.type = TYPE_RESPONSE;
-        if (core->setWorkingStatus(data->option, std::string(""))) {
+        if (core->setWorkingStatus(data->option, std::string("./"))) {
             pdata->option = STATUS_SUCCEED;
         }
         else {

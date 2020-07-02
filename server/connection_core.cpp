@@ -197,7 +197,6 @@ bool connection_core::setWorkingStatus(uint8_t sign, const std::string &file) {
     for (uint32_t i = 0u; i < _path.size(); ++ i)
         _file += (path[i] + std::string("/"));
     unsetWorkingStatus();
-    printf("set %u\n", sign);
     if (sign == REQUEST_LS) {
         _file = _file.substr(0, _file.size() - 1);
         dir = opendir(_file.c_str());
