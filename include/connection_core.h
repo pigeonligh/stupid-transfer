@@ -33,6 +33,7 @@ struct connection_core {
 
     bool setWorkingStatus(uint8_t sign, const std::string &file);
     void unsetWorkingStatus();
+    int8_t getStatus();
 
     int32_t getData(bool checked, uint8_t *data);
     bool setData(uint8_t *data, int32_t _length);
