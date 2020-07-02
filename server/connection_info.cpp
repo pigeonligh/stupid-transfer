@@ -203,7 +203,6 @@ void connection_info::deal_request(struct packet_data *data) {
             pack.length = PACKET_HEADER_SIZE + _length;
         }
     } else if (data->option == SEND_DONE) {
-        // TODO: done
         core->unsetWorkingStatus();
     } else if (data->option == STATUS_SUCCEED) {
         pack.type = TYPE_RESPONSE;
