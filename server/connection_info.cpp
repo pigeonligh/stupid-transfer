@@ -162,12 +162,16 @@ void connection_info::deal_request(struct packet_data *data) {
             pack.length = PACKET_HEADER_SIZE + _length;
         }
     } else if (data->option == SEND_REPEAT) {
-        // TODO: repeat
         int _length = core->getData(false, pack.data);
         if (_length == -1) {
             pack.type = TYPE_RESPONSE;
             pack.length = PACKET_HEADER_SIZE + 4;
             pdata->option = STATUS_FAILED;
+        }
+        else if (_length == 0) {
+            pack.type = TYPE_REQUEST;
+            pack.length = PACKET_HEADER_SIZE + 4;
+            pdata->option = SEND_DONE;
         }
         else {
             pack.type = TYPE_SEND;
