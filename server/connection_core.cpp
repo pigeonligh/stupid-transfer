@@ -251,7 +251,7 @@ bool connection_core::prepareData() {
             if (_dir == nullptr)
                 break ;
             if (!flag) {
-                if (strcmp(_dir->d_name, ".") || strcmp(_dir->d_name, ".."))
+                if (strcmp(_dir->d_name, ".") == 0 || strcmp(_dir->d_name, "..") == 0)
                     continue ;
             }
             int d_length = strlen(_dir->d_name) + 1 + (_dir->d_type == DT_DIR);
