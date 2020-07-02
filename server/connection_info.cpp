@@ -153,7 +153,15 @@ void connection_info::deal_request(struct packet_data *data) {
         }
         pack.length = PACKET_HEADER_SIZE + 4;
     } else if (data->option == REQUEST_UPLOAD) {
-        // TODO: upload
+        pack.type = TYPE_RESPONSE;
+        if (core->setWorkingStatus(data->option, std::string((char *) data->data))) {
+            pdata->option = STATUS_SUCCEED;
+        }
+        else {
+            pdata->option = STATUS_FAILED;
+            core->unsetWorkingStatus();
+        }
+        pack.length = PACKET_HEADER_SIZE + 4;
     } else if (data->option == REQUEST_DOWNLOAD) {
         pack.type = TYPE_RESPONSE;
         if (core->setWorkingStatus(data->option, std::string((char*) data->data))) {
@@ -198,7 +206,15 @@ void connection_info::deal_request(struct packet_data *data) {
         // TODO: done
         core->unsetWorkingStatus();
     } else if (data->option == STATUS_SUCCEED) {
-        //
+        pack.type = TYPE_RESPONSE;
+        if (core->getStatus() == CONNECTION_UPLOADING) {
+            pdata->option = SEND_CONTINUE;
+        }
+        else {
+            pdata->option = STATUS_FAILED;
+            core->unsetWorkingStatus();
+        }
+        pack.length = PACKET_HEADER_SIZE + 4;
     } else if (data->option == STATUS_FAILED) {
         core->unsetWorkingStatus();
     }

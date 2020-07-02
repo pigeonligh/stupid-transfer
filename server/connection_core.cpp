@@ -224,6 +224,10 @@ bool connection_core::setWorkingStatus(uint8_t sign, const std::string &file) {
     return true;
 }
 
+int8_t connection_core::getStatus() {
+    return status;
+}
+
 int32_t connection_core::getData(bool checked, uint8_t *data) {
     if (checked) {
         if (prepareData() == false) {
