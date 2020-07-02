@@ -194,7 +194,7 @@ bool connection_core::setWorkingStatus(uint8_t sign, const std::string &file) {
     std::vector<std::string> _path(path);
     if (!get_path(file, _path))
         return false;
-    for (int i = 0u; i < _path.size(); ++ i)
+    for (uint32_t i = 0u; i < _path.size(); ++ i)
         _file += (path[i] + std::string("/"));
     unsetWorkingStatus();
     if (sign == REQUEST_LS) {
