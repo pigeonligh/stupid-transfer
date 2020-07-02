@@ -92,7 +92,14 @@ void connection_info::deal_request(struct packet_data *data) {
     memset(&pack, 0, sizeof pack);
     packet_data *pdata = (packet_data *)pack.data;
     if (data->option == REQUEST_LS) {
-        // TODO: ls
+        pack.type = TYPE_RESPONSE;
+        if (core->setWorkingStatus(data->option, std::string(""))) {
+            pdata->option = STATUS_SUCCEED;
+        }
+        else {
+            pdata->option = STATUS_FAILED;
+        }
+        pack.length = PACKET_HEADER_SIZE + 4;
     } else if (data->option == REQUEST_CD) {
         pack.type = TYPE_RESPONSE;
         if (core->changeDirectory(std::string((char*) data->data))) {
