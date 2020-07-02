@@ -245,10 +245,15 @@ bool connection_core::prepareData() {
         send_data _data;
         memset(&_data, 0, sizeof _data);
         std::string _data_s;
+        bool flag = path.size();
         for (;;) {
             struct dirent *_dir = readdir(dir);
             if (_dir == nullptr)
                 break ;
+            if (!flag) {
+                if (strcmp(_dir->d_name, ".") || strcmp(_dir->d_name, ".."))
+                    continue ;
+            }
             int d_length = strlen(_dir->d_name) + 1 + (_dir->d_type == DT_DIR);
             if (d_length <= _length) {
                 _data_s += std::string(_dir->d_name);
