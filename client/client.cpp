@@ -144,10 +144,13 @@ void send_packet(packet *pack) {
 
 
 void deal_response(packet_data *data, int32_t length) {
+    if (now_status == STATUS_READY) {
+        return;
+    }
     if (data->option == STATUS_SUCCEED) {
         if (now_command == REQUEST_LS) {
             packet pack;
-            pack.length = PACKET_HEADER_SIZE;
+            pack.length = PACKET_HEADER_SIZE + 4;
             pack.type = TYPE_REQUEST;
             packet_data *pdata = (packet_data*) pack.data;
             pdata->option = SEND_CONTINUE;
@@ -167,43 +170,69 @@ void deal_response(packet_data *data, int32_t length) {
         } else if (now_command == REQUEST_UPLOAD) {
             if (open_file(file_name.c_str(), "rb")) {
                 packet pack;
-                pack.length = PACKET_HEADER_SIZE;
+                pack.length = PACKET_HEADER_SIZE + 4;
                 pack.type = TYPE_REQUEST;
                 packet_data *pdata = (packet_data*) pack.data;
                 pdata->option = STATUS_SUCCEED;
                 send_packet(&pack);
             } else {
                 packet pack;
-                pack.length = PACKET_HEADER_SIZE;
+                pack.length = PACKET_HEADER_SIZE + 4;
                 pack.type = TYPE_REQUEST;
                 packet_data *pdata = (packet_data*) pack.data;
                 pdata->option = STATUS_FAILED;
                 send_packet(&pack);
+                set_status(STATUS_READY);
             }
         } else if (now_command == REQUEST_DOWNLOAD) {
             if (open_file(file_name.c_str(), "wb")) {
                 packet pack;
-                pack.length = PACKET_HEADER_SIZE;
+                pack.length = PACKET_HEADER_SIZE + 4;
                 pack.type = TYPE_REQUEST;
                 packet_data *pdata = (packet_data*) pack.data;
                 pdata->option = SEND_CONTINUE;
                 send_packet(&pack);
             } else {
                 packet pack;
-                pack.length = PACKET_HEADER_SIZE;
+                pack.length = PACKET_HEADER_SIZE + 4;
                 pack.type = TYPE_REQUEST;
                 packet_data *pdata = (packet_data*) pack.data;
                 pdata->option = STATUS_FAILED;
                 send_packet(&pack);
+                set_status(STATUS_READY);
             }
         } else {
             fprintf(stderr, "something is wrong.1\n");
             set_status(STATUS_READY);
         } 
     } else if (data->option == SEND_CONTINUE) {
-        // 
+        packet pack;
+        int32_t length = getData(true, pack.data);
+        if (length >= 0) {
+            pack.length = PACKET_HEADER_SIZE + length;
+            pack.type = TYPE_SEND;
+        } else {
+            pack.length = PACKET_HEADER_SIZE + 4;
+            pack.type = TYPE_REQUEST;
+            packet_data *pdata = (packet_data*) pack.data;
+            pdata->option = STATUS_FAILED;
+            set_status(STATUS_READY);
+        }
+        send_packet(&pack);
     } else if (data->option == SEND_REPEAT) {
-        // 
+        packet pack;
+        int32_t length = getData(false, pack.data);
+        if (length >= 0) {
+            pack.length = PACKET_HEADER_SIZE + length;
+            pack.type = TYPE_SEND;
+        } else {
+            pack.length = PACKET_HEADER_SIZE + 4;
+            pack.type = TYPE_REQUEST;
+            packet_data *pdata = (packet_data*) pack.data;
+            pdata->option = STATUS_FAILED;
+            set_status(STATUS_READY);
+        }
+        send_packet(&pack);
     } else if (data->option == SEND_DONE) {
         if (file_fd != nullptr) {
             fclose(file_fd);
@@ -217,6 +246,9 @@ void deal_response(packet_data *data, int32_t length) {
 }
 
 void deal_send(send_data *data) {
+    if (now_status != STATUS_TRANSFERING) {
+        return;
+    }
     packet pack;
     memset(&pack, 0, sizeof pack);
     packet_data *pdata = (packet_data*) pack.data;
