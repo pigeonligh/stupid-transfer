@@ -11,6 +11,8 @@ See LICENSE in the project root for license information.
 
 #include <stdint.h>
 
+#include <string>
+
 #define STATUS_READY 0
 #define STATUS_WAITING 1
 #define STATUS_TRANSFERING 2
@@ -20,6 +22,8 @@ void client_stop();
 
 void set_status(int status);
 void set_command(int command);
+void set_filename(const std::string &);
+
 bool is_waiting();
 
 void send_packet(struct packet *pack);

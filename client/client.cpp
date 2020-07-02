@@ -28,12 +28,18 @@ pthread_t client_thread;
 
 uint8_t now_status;
 uint8_t now_command;
-int32_t file_fd;
+
+std::string file_name;
+FILE* file_fd;
 
 bool process_packet();
 
 void deal_response(packet_data *, int32_t);
 void deal_send(send_data *);
+bool open_file(const std::string &, const char *);
+
+uint32_t getData(bool, uint8_t *);
+bool setData(uint8_t *);
 
 int32_t connect_server(const char* ipaddr, int32_t port) {
     int32_t fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -138,19 +144,20 @@ void send_packet(packet *pack) {
 
 
 void deal_response(packet_data *data, int32_t length) {
-    packet pack;
-    memset(&pack, 0, sizeof pack);
-    packet_data *pdata = (packet_data*) pack.data;
     if (data->option == STATUS_SUCCEED) {
         if (now_command == REQUEST_LS) {
-            // ls
+            packet pack;
+            pack.length = PACKET_HEADER_SIZE;
+            pack.type = TYPE_REQUEST;
+            packet_data *pdata = (packet_data*) pack.data;
+            pdata->option = SEND_CONTINUE;
+            send_packet(&pack);
         } else if (now_command == REQUEST_CD) {
             set_status(STATUS_READY);
         } else if (now_command == REQUEST_RM) {
             set_status(STATUS_READY);
         } else if (now_command == REQUEST_PWD) {
             data->data[length - PACKET_HEADER_SIZE - 4] = 0;
-            printf("%d\n", length);
             printf("%s\n", (char*) data->data);
             set_status(STATUS_READY);
         } else if (now_command == REQUEST_RMDIR) {
@@ -158,13 +165,51 @@ void deal_response(packet_data *data, int32_t length) {
         } else if (now_command == REQUEST_MKDIR) {
             set_status(STATUS_READY);
         } else if (now_command == REQUEST_UPLOAD) {
-            // upload
+            if (open_file(file_name.c_str(), "rb")) {
+                packet pack;
+                pack.length = PACKET_HEADER_SIZE;
+                pack.type = TYPE_REQUEST;
+                packet_data *pdata = (packet_data*) pack.data;
+                pdata->option = STATUS_SUCCEED;
+                send_packet(&pack);
+            } else {
+                packet pack;
+                pack.length = PACKET_HEADER_SIZE;
+                pack.type = TYPE_REQUEST;
+                packet_data *pdata = (packet_data*) pack.data;
+                pdata->option = STATUS_FAILED;
+                send_packet(&pack);
+            }
         } else if (now_command == REQUEST_DOWNLOAD) {
-            // download
+            if (open_file(file_name.c_str(), "wb")) {
+                packet pack;
+                pack.length = PACKET_HEADER_SIZE;
+                pack.type = TYPE_REQUEST;
+                packet_data *pdata = (packet_data*) pack.data;
+                pdata->option = SEND_CONTINUE;
+                send_packet(&pack);
+            } else {
+                packet pack;
+                pack.length = PACKET_HEADER_SIZE;
+                pack.type = TYPE_REQUEST;
+                packet_data *pdata = (packet_data*) pack.data;
+                pdata->option = STATUS_FAILED;
+                send_packet(&pack);
+            }
         } else {
             fprintf(stderr, "something is wrong.1\n");
             set_status(STATUS_READY);
         } 
+    } else if (data->option == SEND_CONTINUE) {
+        // 
+    } else if (data->option == SEND_REPEAT) {
+        // 
+    } else if (data->option == SEND_DONE) {
+        if (file_fd != nullptr) {
+            fclose(file_fd);
+            file_fd = nullptr;
+        }
+        set_status(STATUS_READY);
     } else {
         fprintf(stderr, "something is wrong. (Error %d)\n", data->option);
         set_status(STATUS_READY);
@@ -172,5 +217,81 @@ void deal_response(packet_data *data, int32_t length) {
 }
 
 void deal_send(send_data *data) {
-    // TODO: deal send
+    packet pack;
+    memset(&pack, 0, sizeof pack);
+    packet_data *pdata = (packet_data*) pack.data;
+    pack.type = TYPE_REQUEST;
+    if (check_hash(data)) {
+        if (setData(data->data)) {
+            pdata->option = SEND_CONTINUE;
+        } else {
+            pdata->option = STATUS_FAILED;
+        }
+    } else {
+        pdata->option = SEND_REPEAT;
+    }
+    pack.length = PACKET_HEADER_SIZE + 4;
+    send_packet(&pack);
+}
+
+void set_filename(const std::string &filename) {
+    file_name = filename;
+}
+
+bool open_file(const std::string &file, const char *mode) {
+    if (file_fd != nullptr) {
+        fclose(file_fd);
+    }
+    file_fd = fopen(file.c_str(), mode);
+    return file_fd != nullptr;
+}
+
+int32_t length;
+uint8_t buff[MAX_PACKET_SIZE];
+
+bool prepareData() {
+    if (now_command == REQUEST_UPLOAD) {
+        if (file_fd == nullptr) {
+            return false;
+        }
+        send_data _data;
+        memset(&_data, 0, sizeof _data);
+        length = fread(_data.data, MAX_PACKET_SIZE - HASH_SIZE, 1, file_fd);
+        gen_hash(&_data);
+        memcpy(buff, &_data, MAX_PACKET_SIZE);
+    } else {
+        return false;
+    }
+    return true;
+}
+
+uint32_t getData(bool checked, uint8_t *data) {
+    if (checked) {
+        if (prepareData() == false) {
+            return -1;
+        }
+    }
+    if (length > 0) {
+        memcpy(data, buff, MAX_PACKET_SIZE);
+        return MAX_PACKET_SIZE;
+    }
+    return 0;
+}
+
+bool setData(uint8_t *data) {
+    if (now_command == REQUEST_DOWNLOAD) {
+        if (file_fd == nullptr) {
+            return false;
+        }
+        int _length = 0;
+        while (*(data + _length) != '\0' && _length < MAX_PACKET_SIZE - HASH_SIZE)
+            ++ _length;
+        fwrite(data, _length, 1, file_fd);
+    } else if (now_command == REQUEST_LS) {
+        std::string dirs((char*) data);
+        printf("%s", dirs.c_str());
+    } else {
+        return false;
+    }
+    return true;
 }
