@@ -199,19 +199,20 @@ bool connection_core::setWorkingStatus(uint8_t sign, const std::string &file) {
         _file += (_path[i] + std::string("/"));
     unsetWorkingStatus();
     if (sign == REQUEST_LS) {
-        _file = _file.substr(0, _file.size() - 1);
         dir = opendir(_file.c_str());
         if (dir == nullptr) {
             return false;
         }
         status = CONNECTION_LISTING;
     } else if (sign == REQUEST_DOWNLOAD) {
+        _file = _file.substr(0, _file.size() - 1);
         fd = fopen(_file.c_str(), "rb");
         if (fd == nullptr) {
             return false;
         }
         status = CONNECTION_DOWNLOADING;
     } else if (sign == REQUEST_UPLOAD) {
+        _file = _file.substr(0, _file.size() - 1);
         fd = fopen(_file.c_str(), "wb");
         if (fd == nullptr) {
             return false;
