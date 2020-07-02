@@ -102,7 +102,7 @@ void client_stop() {
 bool process_packet() {
     packet pack;
     if (receive_packet(sock_fd, &pack) == false) {
-        printf("pipe broken\n");
+        fprintf(stderr, "pipe broken\n");
         return false;
     }
 
@@ -119,7 +119,7 @@ bool process_packet() {
     } else if (pack.type == KEEPALIVE) {
         send_packet(&pack);
     } else {
-        printf("unknown type packet\n");
+        fprintf(stderr, "unknown type packet(%d)\n", pack.type);
     }
 
     return true;
@@ -127,6 +127,12 @@ bool process_packet() {
 
 void set_status(int status) {
     now_status = status;
+    if (status == STATUS_READY) {
+        if (file_fd != nullptr) {
+            fclose(file_fd);
+            file_fd = nullptr;
+        }
+    }
 }
 
 void set_command(int command) {
@@ -208,9 +214,15 @@ void deal_response(packet_data *data, int32_t length) {
     } else if (data->option == SEND_CONTINUE) {
         packet pack;
         int32_t length = getData(true, pack.data);
-        if (length >= 0) {
+        if (length > 0) {
             pack.length = PACKET_HEADER_SIZE + length;
             pack.type = TYPE_SEND;
+        } else if (length == 0) {
+            pack.length = PACKET_HEADER_SIZE + 4;
+            pack.type = TYPE_REQUEST;
+            packet_data *pdata = (packet_data*) pack.data;
+            pdata->option = SEND_DONE;
+            set_status(STATUS_READY);
         } else {
             pack.length = PACKET_HEADER_SIZE + 4;
             pack.type = TYPE_REQUEST;
@@ -234,10 +246,6 @@ void deal_response(packet_data *data, int32_t length) {
         }
         send_packet(&pack);
     } else if (data->option == SEND_DONE) {
-        if (file_fd != nullptr) {
-            fclose(file_fd);
-            file_fd = nullptr;
-        }
         set_status(STATUS_READY);
     } else {
         fprintf(stderr, "something is wrong. (Error %d)\n", data->option);
@@ -320,6 +328,10 @@ bool setData(uint8_t *data) {
             ++ _length;
         fwrite(data, _length, 1, file_fd);
     } else if (now_command == REQUEST_LS) {
+        int _length = 0;
+        while (*(data + _length) != '\0' && _length < MAX_PACKET_SIZE - HASH_SIZE)
+            ++ _length;
+        data[_length] = 0;
         std::string dirs((char*) data);
         printf("%s", dirs.c_str());
     } else {
