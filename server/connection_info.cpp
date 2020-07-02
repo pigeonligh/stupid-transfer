@@ -151,9 +151,28 @@ void connection_info::deal_request(struct packet_data *data) {
     } else if (data->option == REQUEST_DOWNLOAD) {
         // TODO: download
     } else if (data->option == SEND_CONTINUE) {
-        // TODO: continue
+        int _length = core->getData(true, pack.data);
+        if (_length == -1) {
+            pack.type = TYPE_RESPONSE;
+            pack.length = PACKET_HEADER_SIZE + 4;
+            pdata->option = STATUS_FAILED;
+        }
+        else {
+            pack.type = TYPE_SEND;
+            pack.length = PACKET_HEADER_SIZE + _length;
+        }
     } else if (data->option == SEND_REPEAT) {
         // TODO: repeat
+        int _length = core->getData(false, pack.data);
+        if (_length == -1) {
+            pack.type = TYPE_RESPONSE;
+            pack.length = PACKET_HEADER_SIZE + 4;
+            pdata->option = STATUS_FAILED;
+        }
+        else {
+            pack.type = TYPE_SEND;
+            pack.length = PACKET_HEADER_SIZE + _length;
+        }
     } else if (data->option == SEND_DONE) {
         // TODO: done
     }
