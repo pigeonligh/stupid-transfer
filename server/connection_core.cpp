@@ -190,21 +190,28 @@ void connection_core::unsetWorkingStatus() {
 }
 
 bool connection_core::setWorkingStatus(uint8_t sign, const std::string &file) {
+    std::string _file(root);
+    std::vector<std::string> _path(path);
+    if (!get_path(file, _path))
+        return false;
+    for (int i = 0u; i < _path.size(); ++ i)
+        _file += (path[i] + std::string("/"));
     unsetWorkingStatus();
     if (sign == REQUEST_LS) {
-        dir = opendir(file.c_str());
+        _file = _file.substr(0, _file.size() - 1);
+        dir = opendir(_file.c_str());
         if (dir == nullptr) {
             return false;
         }
         status = CONNECTION_LISTING;
     } else if (sign == REQUEST_DOWNLOAD) {
-        fd = fopen(file.c_str(), "rb");
+        fd = fopen(_file.c_str(), "rb");
         if (fd == nullptr) {
             return false;
         }
         status = CONNECTION_DOWNLOADING;
     } else if (sign == REQUEST_UPLOAD) {
-        fd = fopen(file.c_str(), "wb");
+        fd = fopen(_file.c_str(), "wb");
         if (fd == nullptr) {
             return false;
         }
