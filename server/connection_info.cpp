@@ -155,7 +155,15 @@ void connection_info::deal_request(struct packet_data *data) {
     } else if (data->option == REQUEST_UPLOAD) {
         // TODO: upload
     } else if (data->option == REQUEST_DOWNLOAD) {
-        // TODO: download
+        pack.type = TYPE_RESPONSE;
+        if (core->setWorkingStatus(data->option, data->data)) {
+            pdata->option = STATUS_SUCCEED;
+        }
+        else {
+            pdata->option = STATUS_FAILED;
+            core->unsetWorkingStatus();
+        }
+        pack.length = PACKET_HEADER_SIZE + 4;
     } else if (data->option == SEND_CONTINUE) {
         int _length = core->getData(true, pack.data);
         if (_length == -1) {
@@ -168,6 +176,7 @@ void connection_info::deal_request(struct packet_data *data) {
             pack.type = TYPE_RESPONSE;
             pack.length = PACKET_HEADER_SIZE + 4;
             pdata->option = SEND_DONE;
+            core->unsetWorkingStatus();
         }
         else {
             pack.type = TYPE_SEND;
