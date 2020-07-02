@@ -192,7 +192,7 @@ void connection_core::unsetWorkingStatus() {
 bool connection_core::setWorkingStatus(uint8_t sign, const std::string &file) {
     std::string _file(root);
     std::vector<std::string> _path(path);
-    if (!get_path(_path))
+    if (!get_path(file, _path))
         return false;
     for (int i = 0u; i < _path.size(); ++ i)
         _file += (path[i] + std::string("/"));
