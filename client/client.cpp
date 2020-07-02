@@ -153,7 +153,7 @@ void deal_response(packet_data *data, int32_t length) {
     if (now_status == STATUS_READY) {
         return;
     }
-    printf("response %d\n", data->option);
+    // printf("response %d\n", data->option);
     if (data->option == STATUS_SUCCEED) {
         if (now_command == REQUEST_LS) {
             packet pack;
