@@ -156,7 +156,7 @@ void connection_info::deal_request(struct packet_data *data) {
         // TODO: upload
     } else if (data->option == REQUEST_DOWNLOAD) {
         pack.type = TYPE_RESPONSE;
-        if (core->setWorkingStatus(data->option, data->data)) {
+        if (core->setWorkingStatus(data->option, std::string((char*) data->data))) {
             pdata->option = STATUS_SUCCEED;
         }
         else {
