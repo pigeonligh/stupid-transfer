@@ -64,7 +64,9 @@ bool check_hash(send_data *data) {
         value = value.substr(value.size() - 4, 4) + value.substr(0, value.size() - 4);
         hash += value;
     }
-    char hash_value[256];
+    char hash_value[257];
     memcpy(hash_value, data->hash, sizeof (data->hash));
+    hash_value[256] = 0;
     return strcmp(hash.c_str(), hash_value) == 0;
+
 }
